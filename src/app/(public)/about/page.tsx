@@ -20,6 +20,8 @@ export const metadata: Metadata = {
     "Learn about AZIZURRAHMAN, offering dedicated Islamic spiritual guidance, consultation, and ethical counsel.",
 };
 
+export const instant = false;
+
 export default async function AboutPage() {
   const siteSettings = await getPublicSiteSettings();
 

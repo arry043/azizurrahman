@@ -42,6 +42,8 @@ export async function generateMetadata({ params }: ServiceDetailPageProps): Prom
   };
 }
 
+export const instant = false;
+
 export default async function ServiceDetailPage({ params }: ServiceDetailPageProps) {
   const { slug } = await params;
   const [service, siteSettings] = await Promise.all([
