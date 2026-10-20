@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: Lint, typecheck, unit tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      # Built without any Supabase/provider credentials on purpose: the base app must not depend
+      # on secrets at build time. No secrets are configured for this workflow.
+      - run: npm run build
+
+  database:
+    name: Migrations, pgTAP, RLS (local Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.117.0
+
+      - name: Start local Supabase (db, auth, rest only)
+        run: supabase start -x studio,imgproxy,storage-api,realtime,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta
+
+      - name: Apply migrations and seed to a fresh database
+        run: supabase db reset --local
+
+      - name: Lint database functions
+        run: supabase db lint --local --level warning --fail-on warning
+
+      - name: pgTAP schema, constraint and RLS tests
+        run: supabase test db
+
+      - name: Concurrent booking race check
+        run: bash supabase/tests/concurrency/booking-race.sh
+
+      - name: Generated types are up to date
+        run: |
+          supabase gen types typescript --local --schema public \
+            | npx prettier --stdin-filepath src/types/database.types.ts \
+            | diff -u src/types/database.types.ts -
+
+      - name: Data API RLS integration tests
+        # Local-only, well-known development keys from the ephemeral Supabase stack on this runner.
+        run: |
+          eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY)=')"
+          NEXT_PUBLIC_SUPABASE_URL="$API_URL" \
+          NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY" \
+          SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          npm run test:integration
