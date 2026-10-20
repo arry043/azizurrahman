@@ -1,7 +1,37 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { createGuestBooking } from "@/lib/booking/booking-service";
 import * as lookupService from "@/lib/lookup/lookup-service";
+
+vi.mock("@/lib/supabase/service-role", () => {
+  const mockQuery = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    insert: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: { id: "test-verif-id" }, error: null }),
+      }),
+    }),
+    update: vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+    }),
+  };
+
+  const mockSupabase = {
+    from: vi.fn(() => mockQuery),
+    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+  };
+
+  return {
+    createServiceRoleClient: vi.fn(() => mockSupabase),
+    createSupabaseServiceRoleClient: vi.fn(() => mockSupabase),
+  };
+});
 
 describe("Booking & Lookup Domain Service Validation", () => {
   describe("Guest Booking Input Validation", () => {
