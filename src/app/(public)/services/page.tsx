@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     "Explore our spiritual consultation services, Quranic reflection, and dedicated one-on-one sessions.",
 };
 
+export const instant = false;
+
 export default async function ServicesPage() {
   const [services, siteSettings] = await Promise.all([
     getActiveServices(),

@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const instant = false;
+
 export default async function AppointmentReceiptPage({ params }: ReceiptPageProps) {
   const { ref } = await params;
   const receipt = await getPublicReceiptByReference(ref);

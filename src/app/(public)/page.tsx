@@ -19,6 +19,8 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { siteConfig } from "@/config/site";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
+export const instant = false;
+
 export default async function HomePage() {
   const [services, siteSettings] = await Promise.all([
     getActiveServices(),

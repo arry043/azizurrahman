@@ -18,6 +18,8 @@ export const metadata: Metadata = {
     "Get in touch with AZIZURRAHMAN for consultation inquiries, questions, or appointment scheduling.",
 };
 
+export const instant = false;
+
 export default async function ContactPage() {
   const [siteSettings, services] = await Promise.all([
     getPublicSiteSettings(),
