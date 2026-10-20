@@ -5,6 +5,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { canTransition } from "@/lib/booking/status";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { sendAppointmentNotification } from "@/lib/notifications/delivery-service";
+import type { NotificationEvent } from "@/lib/notifications/types";
 import type { Database } from "@/types/database.types";
 import type {
   AppointmentRow,
@@ -301,6 +303,53 @@ export async function updateAppointmentStatus(
     newStatus: params.newStatus,
     reason: params.reason ? "[PROVIDED]" : undefined,
   });
+
+  // Safe Post-Commit Notification Dispatch (non-blocking side effect)
+  const eventMap: Partial<Record<AppointmentStatus, NotificationEvent>> = {
+    confirmed: "appointment_confirmed",
+    declined: "appointment_declined",
+    cancelled: "appointment_cancelled",
+    reschedule_requested: "appointment_rescheduled",
+  };
+  const event = eventMap[params.newStatus];
+
+  if (event && updatedApp.email) {
+    void (async () => {
+      try {
+        const { data: services } = await supabase
+          .from("appointment_services")
+          .select("service_name_snapshot, duration_minutes_snapshot")
+          .eq("appointment_id", params.appointmentId);
+
+        await sendAppointmentNotification({
+          event,
+          appointment: {
+            appointmentId: updatedApp.id,
+            publicReference: updatedApp.public_reference,
+            customerName: updatedApp.customer_name,
+            email: updatedApp.email,
+            phone: updatedApp.phone_number,
+            status: updatedApp.status,
+            appointmentStart: updatedApp.appointment_start,
+            appointmentEnd: updatedApp.appointment_end,
+            timeZone: updatedApp.timezone,
+            services: (services ?? []).map((s) => ({
+              name: s.service_name_snapshot,
+              durationMinutes: s.duration_minutes_snapshot,
+            })),
+            reason: params.reason,
+          },
+          expectedStatus: params.newStatus,
+        });
+      } catch (err) {
+        logger.warn("admin_status_notification_dispatch_failed", {
+          appointmentId: params.appointmentId,
+          event,
+          error: String(err),
+        });
+      }
+    })();
+  }
 
   return updatedApp;
 }

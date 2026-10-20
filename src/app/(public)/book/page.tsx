@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BookingForm } from "@/components/booking/booking-form";
+import { buildWhatsAppUrl } from "@/components/contact/contact-actions";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageSection } from "@/components/layout/page-section";
@@ -209,19 +210,26 @@ export default async function BookAppointmentPage({ searchParams }: BookPageProp
                 </LinkButton>
               </div>
 
-              {siteSettings?.public_whatsapp && (
-                <div className="border-t border-border/70 pt-4 text-xs text-muted">
-                  <span>Fastest response: </span>
-                  <a
-                    href={`https://wa.me/${siteSettings.public_whatsapp.replace(/^\+/, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-emerald underline-offset-4 hover:underline"
-                  >
-                    Direct WhatsApp Message
-                  </a>
-                </div>
-              )}
+              {siteSettings?.public_whatsapp &&
+                buildWhatsAppUrl(
+                  siteSettings.public_whatsapp,
+                  siteSettings.whatsapp_message_template,
+                ) && (
+                  <div className="border-t border-border/70 pt-4 text-xs text-muted">
+                    <span>Fastest response: </span>
+                    <a
+                      href={buildWhatsAppUrl(
+                        siteSettings.public_whatsapp,
+                        siteSettings.whatsapp_message_template,
+                      )!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-emerald underline-offset-4 hover:underline"
+                    >
+                      Direct WhatsApp Message
+                    </a>
+                  </div>
+                )}
             </Card>
 
             {/* Available Services Summary */}

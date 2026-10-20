@@ -8,16 +8,22 @@ export interface ContactActionsProps {
   phone?: string | null;
   email?: string | null;
   whatsappTemplate?: string | null;
+  showNote?: boolean;
   className?: string;
   variant?: "horizontal" | "vertical" | "grid";
 }
 
+/**
+ * Constructs an RFC-compliant, URL-encoded WhatsApp direct conversation link.
+ * Does not transmit any message automatically; the visitor retains full agency to review and send.
+ */
 export function buildWhatsAppUrl(phone: string, template?: string | null): string | null {
   const normalized = normalizePhone(phone);
   if (!normalized) return null;
 
   const digits = normalized.replace(/^\+/, "");
-  const defaultText = "Assalamu Alaikum, I would like to inquire regarding a consultation.";
+  const defaultText =
+    "Assalamu Alaikum, I would like to enquire about an appointment with Maulvi Azizurrahman.";
   const text = encodeURIComponent(template?.trim() || defaultText);
 
   return `https://wa.me/${digits}?text=${text}`;
@@ -28,6 +34,7 @@ export function ContactActions({
   phone,
   email,
   whatsappTemplate,
+  showNote = true,
   className,
   variant = "horizontal",
 }: ContactActionsProps) {
@@ -47,7 +54,7 @@ export function ContactActions({
       >
         <p className="text-sm text-muted">
           Direct contact channels (WhatsApp, phone, and email) are currently being finalized and
-          will be published upon verification.
+          will be published upon verification (pending verification).
         </p>
         <div className="mt-4">
           <LinkButton href="/book" variant="primary" size="md">
@@ -66,38 +73,50 @@ export function ContactActions({
         : "flex flex-wrap items-center gap-3";
 
   return (
-    <div className={cn(containerLayout, className)}>
-      {waUrl && (
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-emerald/40 bg-emerald/10 px-5 py-2.5 text-base font-medium text-emerald transition-colors hover:bg-emerald/20 focus-visible:outline-3 focus-visible:outline-focus"
-        >
-          <WhatsAppIcon className="size-5 shrink-0 text-emerald" />
-          <span>Message on WhatsApp</span>
-          <ExternalLinkIcon className="ml-1 size-3.5 opacity-60" />
-        </a>
-      )}
+    <div className="space-y-3">
+      <div className={cn(containerLayout, className)}>
+        {waUrl && (
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Message Maulvi Azizurrahman on WhatsApp (opens conversation in new window; you review and send)"
+            className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-emerald/40 bg-emerald/10 px-5 py-2.5 text-base font-medium text-emerald transition-colors hover:bg-emerald/20 focus-visible:outline-3 focus-visible:outline-focus"
+          >
+            <WhatsAppIcon className="size-5 shrink-0 text-emerald" />
+            <span>Message on WhatsApp</span>
+            <ExternalLinkIcon className="ml-1 size-3.5 opacity-60" />
+          </a>
+        )}
 
-      {normalizedPhone && (
-        <a
-          href={`tel:${normalizedPhone}`}
-          className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-border bg-surface px-5 py-2.5 text-base font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
-        >
-          <PhoneIcon className="size-5 shrink-0 text-primary" />
-          <span>Call: {normalizedPhone}</span>
-        </a>
-      )}
+        {normalizedPhone && (
+          <a
+            href={`tel:${normalizedPhone}`}
+            aria-label={`Call Maulvi Azizurrahman at ${normalizedPhone}`}
+            className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-border bg-surface px-5 py-2.5 text-base font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
+          >
+            <PhoneIcon className="size-5 shrink-0 text-primary" />
+            <span>Call: {normalizedPhone}</span>
+          </a>
+        )}
 
-      {normalizedEmail && (
-        <a
-          href={`mailto:${normalizedEmail}`}
-          className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-border bg-surface px-5 py-2.5 text-base font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
-        >
-          <MailIcon className="size-5 shrink-0 text-primary" />
-          <span>Email: {normalizedEmail}</span>
-        </a>
+        {normalizedEmail && (
+          <a
+            href={`mailto:${normalizedEmail}`}
+            aria-label={`Send email to ${normalizedEmail}`}
+            className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-border bg-surface px-5 py-2.5 text-base font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
+          >
+            <MailIcon className="size-5 shrink-0 text-primary" />
+            <span>Email: {normalizedEmail}</span>
+          </a>
+        )}
+      </div>
+
+      {showNote && waUrl && (
+        <p className="text-xs text-muted">
+          Note: Opening WhatsApp opens a direct conversation with a prepared inquiry. You must
+          review and send the message yourself.
+        </p>
       )}
     </div>
   );

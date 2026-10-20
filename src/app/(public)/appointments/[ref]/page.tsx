@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BrandMark } from "@/components/layout/brand-mark";
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { Ornament } from "@/components/ui/ornament";
 import { PrintButton } from "@/components/ui/print-button";
+import { scholarProfile } from "@/config/scholar-profile";
 import { getPublicReceiptByReference } from "@/lib/lookup/lookup-service";
 
 interface ReceiptPageProps {
@@ -181,6 +183,31 @@ export default async function AppointmentReceiptPage({ params }: ReceiptPageProp
               <p className="text-[11px] leading-relaxed text-muted italic">
                 Notice: A printed or saved copy of this receipt reflects the state at the time of
                 creation. For subsequent schedule adjustments, please quote your reference code.
+              </p>
+            </div>
+
+            {/* Assistance & Inquiries Support */}
+            <div className="mt-6 rounded-control border border-border/80 bg-surface-muted/40 p-4 text-xs text-muted print:hidden">
+              <p className="font-semibold text-primary">Need assistance with your consultation?</p>
+              <p className="mt-1 leading-relaxed">
+                If you need to change your request or have questions, please reach out quoting
+                reference{" "}
+                <span className="font-mono font-bold text-primary">{receipt.public_reference}</span>{" "}
+                at{" "}
+                <a
+                  href={`mailto:${scholarProfile.contact.email}`}
+                  className="font-medium text-primary underline underline-offset-2"
+                >
+                  {scholarProfile.contact.email}
+                </a>{" "}
+                or visit our{" "}
+                <Link
+                  href="/contact"
+                  className="font-medium text-primary underline underline-offset-2"
+                >
+                  Contact page
+                </Link>
+                .
               </p>
             </div>
 

@@ -45,6 +45,7 @@ describe("migrations (static)", () => {
       "admin_profiles",
       "date_overrides",
       "date_override_intervals",
+      "notification_logs",
     ]) {
       expect(allSql).not.toMatch(new RegExp(`grant [a-z, ]+ on table public\\.${table} to anon`));
     }

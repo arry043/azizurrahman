@@ -53,3 +53,11 @@ export function getAppointmentLookupSecret(): string {
 export function getResendApiKey(): string | null {
   return emptyToUndefined(process.env.RESEND_API_KEY) ?? null;
 }
+
+/** Configured verified sender address for outbound emails (Phase 12). */
+export function getResendFromEmail(): string {
+  return (
+    emptyToUndefined(process.env.RESEND_FROM_EMAIL) ??
+    "AZIZURRAHMAN <consultations@updates.azizurrahman.com>"
+  );
+}

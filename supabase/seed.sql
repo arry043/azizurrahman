@@ -91,3 +91,11 @@ with appointment as (
 insert into public.appointment_services (appointment_id, service_id)
 select appointment.id, '00000000-0000-4000-8000-000000000101'::uuid
 from appointment;
+
+-- Site Settings (official approved address & email; phone awaiting +91 confirmation) -----------
+update public.site_settings
+set
+  public_email = 'azizurrahman8423@gmail.com',
+  public_address = 'Village Kharewan, Saraimeer, Azamgarh, Uttar Pradesh, India — 276305',
+  whatsapp_message_template = 'Assalamu Alaikum, I would like to enquire about an appointment with Maulvi Azizurrahman.'
+where id = true;
