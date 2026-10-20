@@ -6,16 +6,17 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageSection } from "@/components/layout/page-section";
 import { Card, CardTitle } from "@/components/ui/card";
-import { ClockIcon, MapPinIcon } from "@/components/ui/icons";
+import { ClockIcon, ExternalLinkIcon, MapPinIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
 import { Ornament } from "@/components/ui/ornament";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { scholarProfile } from "@/config/scholar-profile";
+import { siteConfig } from "@/config/site";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
-  title: "Contact",
-  description:
-    "Get in touch with AZIZURRAHMAN for consultation inquiries, questions, or appointment scheduling.",
+  title: `Contact ${scholarProfile.identity.fullNameEn} | ${siteConfig.name}`,
+  description: `Official contact information for ${scholarProfile.identity.fullNameEn}. Email, postal address, and consultation appointment scheduling.`,
 };
 
 export const instant = false;
@@ -27,6 +28,8 @@ export default async function ContactPage() {
   ]);
 
   const serviceNames = services.map((s) => s.name);
+  const displayAddress = siteSettings?.public_address || scholarProfile.contact.address.full;
+  const displayEmail = siteSettings?.public_email;
 
   return (
     <>
@@ -37,7 +40,7 @@ export default async function ContactPage() {
           <SectionHeading
             kicker="Direct Communication"
             title="Get in Touch"
-            description="Have questions about our guidance services or scheduling an appointment? Reach out through our direct communication channels."
+            description={`Have questions regarding spiritual consultation or appointment requests? Reach out to ${scholarProfile.identity.fullNameEn} through official channels.`}
             inverse
             align="center"
           />
@@ -59,8 +62,8 @@ export default async function ContactPage() {
                 </h3>
                 <Ornament className="mt-3 justify-start" />
                 <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-                  We are available for genuine inquiries regarding spiritual guidance,
-                  supplications, and appointment scheduling.
+                  Official inquiries regarding Islamic spiritual guidance, supplications (duas), and
+                  consultation requests are welcomed through the verified channels below.
                 </p>
               </div>
 
@@ -68,13 +71,26 @@ export default async function ContactPage() {
               <ContactActions
                 whatsapp={siteSettings?.public_whatsapp}
                 phone={siteSettings?.public_phone}
-                email={siteSettings?.public_email}
+                email={displayEmail}
                 whatsappTemplate={siteSettings?.whatsapp_message_template}
                 variant="vertical"
               />
 
-              {/* Consultation Hours & Location */}
-              <div className="grid gap-4 pt-4 sm:grid-cols-2">
+              {/* Phone / WhatsApp International Confirmation Notice */}
+              {!siteSettings?.public_phone && !siteSettings?.public_whatsapp && (
+                <div className="rounded-control border border-border/80 bg-surface-muted/60 p-4 text-xs text-muted">
+                  <p className="font-semibold text-primary">Telephone &amp; WhatsApp Notice:</p>
+                  <p className="mt-1 leading-relaxed">
+                    Client contact number ({scholarProfile.contact.phone.rawInput}) is pending
+                    international format confirmation (+91 prefix). Calling and WhatsApp links will
+                    be activated once confirmed. You may reach out immediately by official email or
+                    request a consultation online.
+                  </p>
+                </div>
+              )}
+
+              {/* Consultation Hours & Official Address */}
+              <div className="grid gap-4 pt-2 sm:grid-cols-2">
                 <Card variant="muted" className="p-5">
                   <div className="mb-2 flex items-center gap-2.5 text-primary">
                     <ClockIcon className="size-5 text-accent-strong" />
@@ -89,12 +105,24 @@ export default async function ContactPage() {
                 <Card variant="muted" className="p-5">
                   <div className="mb-2 flex items-center gap-2.5 text-primary">
                     <MapPinIcon className="size-5 text-accent-strong" />
-                    <CardTitle className="text-base">Location</CardTitle>
+                    <CardTitle className="text-base">Official Address</CardTitle>
                   </div>
-                  <p className="text-xs leading-relaxed text-muted sm:text-sm">
-                    {siteSettings?.public_address ||
-                      "Consultations are conducted remotely or at designated private venues upon confirmation."}
-                  </p>
+                  <p className="text-xs leading-relaxed text-muted sm:text-sm">{displayAddress}</p>
+                  <div className="mt-3">
+                    <a
+                      href={scholarProfile.contact.address.mapsSearchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                    >
+                      <span>Search on Google Maps</span>
+                      <ExternalLinkIcon className="size-3 opacity-70" />
+                    </a>
+                    <p className="mt-1 text-[11px] text-muted italic">
+                      Notice: Consultations are held by appointment; precise map pin is not
+                      verified.
+                    </p>
+                  </div>
                 </Card>
               </div>
 
@@ -104,8 +132,9 @@ export default async function ContactPage() {
                   Important: Inquiries vs. Appointments
                 </h4>
                 <p className="text-xs leading-relaxed text-muted sm:text-sm">
-                  Sending a direct message via WhatsApp or email allows you to ask questions, but
-                  does not automatically reserve a consultation slot on the schedule.
+                  Sending a direct message via WhatsApp or email allows you to ask preliminary
+                  questions, but does not reserve an appointment on the schedule. To book a
+                  dedicated consultation slot, please use the online booking system.
                 </p>
                 <div className="pt-2">
                   <LinkButton href="/book" variant="primary" size="sm">
@@ -119,7 +148,7 @@ export default async function ContactPage() {
             <div className="lg:col-span-6">
               <InquiryForm
                 whatsapp={siteSettings?.public_whatsapp}
-                email={siteSettings?.public_email}
+                email={displayEmail}
                 serviceNames={serviceNames}
               />
             </div>

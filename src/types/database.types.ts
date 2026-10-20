@@ -12,6 +12,7 @@ export type Database = {
           role: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           display_name?: string | null;
@@ -37,17 +38,18 @@ export type Database = {
           created_at: string;
           event_type: string;
           id: string;
-          metadata: Json;
+          metadata: NonNullable<Json>;
           new_status: Database["public"]["Enums"]["appointment_status"] | null;
           previous_status: Database["public"]["Enums"]["appointment_status"] | null;
         };
+        ComputedFields: never;
         Insert: {
           actor_admin_id?: string | null;
           appointment_id: string;
           created_at?: string;
           event_type: string;
           id?: string;
-          metadata?: Json;
+          metadata?: NonNullable<Json>;
           new_status?: Database["public"]["Enums"]["appointment_status"] | null;
           previous_status?: Database["public"]["Enums"]["appointment_status"] | null;
         };
@@ -57,7 +59,7 @@ export type Database = {
           created_at?: string;
           event_type?: string;
           id?: string;
-          metadata?: Json;
+          metadata?: NonNullable<Json>;
           new_status?: Database["public"]["Enums"]["appointment_status"] | null;
           previous_status?: Database["public"]["Enums"]["appointment_status"] | null;
         };
@@ -90,6 +92,7 @@ export type Database = {
           service_id: string;
           service_name_snapshot: string;
         };
+        ComputedFields: never;
         Insert: {
           appointment_id: string;
           buffer_after_minutes_snapshot?: number;
@@ -142,6 +145,7 @@ export type Database = {
           max_attempts: number;
           token_hash: string;
         };
+        ComputedFields: never;
         Insert: {
           appointment_id: string;
           attempts?: number;
@@ -198,6 +202,7 @@ export type Database = {
           timezone: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           appointment_end: string;
           appointment_start: string;
@@ -207,14 +212,14 @@ export type Database = {
           customer_name: string;
           email?: string | null;
           id?: string;
-          local_date?: string | null;
+          local_date?: never;
           message?: string | null;
           normalized_phone: string;
           phone_number: string;
           preferred_contact_method?: Database["public"]["Enums"]["contact_method"] | null;
           private_admin_notes?: string | null;
           public_reference?: string;
-          reserves_capacity?: boolean | null;
+          reserves_capacity?: never;
           status?: Database["public"]["Enums"]["appointment_status"];
           timezone: string;
           updated_at?: string;
@@ -228,14 +233,14 @@ export type Database = {
           customer_name?: string;
           email?: string | null;
           id?: string;
-          local_date?: string | null;
+          local_date?: never;
           message?: string | null;
           normalized_phone?: string;
           phone_number?: string;
           preferred_contact_method?: Database["public"]["Enums"]["contact_method"] | null;
           private_admin_notes?: string | null;
           public_reference?: string;
-          reserves_capacity?: boolean | null;
+          reserves_capacity?: never;
           status?: Database["public"]["Enums"]["appointment_status"];
           timezone?: string;
           updated_at?: string;
@@ -250,8 +255,9 @@ export type Database = {
           id: string;
           idempotency_key: string;
           request_hash: string;
-          response_payload: Json;
+          response_payload: NonNullable<Json>;
         };
+        ComputedFields: never;
         Insert: {
           appointment_id: string;
           created_at?: string;
@@ -259,7 +265,7 @@ export type Database = {
           id?: string;
           idempotency_key: string;
           request_hash: string;
-          response_payload: Json;
+          response_payload: NonNullable<Json>;
         };
         Update: {
           appointment_id?: string;
@@ -268,7 +274,7 @@ export type Database = {
           id?: string;
           idempotency_key?: string;
           request_hash?: string;
-          response_payload?: Json;
+          response_payload?: NonNullable<Json>;
         };
         Relationships: [
           {
@@ -289,6 +295,7 @@ export type Database = {
           start_time: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           date_override_id: string;
@@ -325,6 +332,7 @@ export type Database = {
           reason: string | null;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           created_by?: string | null;
@@ -353,6 +361,63 @@ export type Database = {
           },
         ];
       };
+      notification_logs: {
+        Row: {
+          appointment_id: string;
+          attempt_count: number;
+          channel: string;
+          created_at: string;
+          id: string;
+          idempotency_key: string | null;
+          last_error_code: string | null;
+          last_error_message: string | null;
+          provider_message_id: string | null;
+          recipient: string;
+          sent_at: string | null;
+          status: string;
+          template: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          appointment_id: string;
+          attempt_count?: number;
+          channel: string;
+          created_at?: string;
+          id?: string;
+          idempotency_key?: string | null;
+          last_error_code?: string | null;
+          last_error_message?: string | null;
+          provider_message_id?: string | null;
+          recipient: string;
+          sent_at?: string | null;
+          status: string;
+          template: string;
+        };
+        Update: {
+          appointment_id?: string;
+          attempt_count?: number;
+          channel?: string;
+          created_at?: string;
+          id?: string;
+          idempotency_key?: string | null;
+          last_error_code?: string | null;
+          last_error_message?: string | null;
+          provider_message_id?: string | null;
+          recipient?: string;
+          sent_at?: string | null;
+          status?: string;
+          template?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: false;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       services: {
         Row: {
           buffer_after_minutes: number;
@@ -369,6 +434,7 @@ export type Database = {
           slug: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           buffer_after_minutes?: number;
           buffer_before_minutes?: number;
@@ -416,6 +482,7 @@ export type Database = {
           updated_at: string;
           whatsapp_message_template: string | null;
         };
+        ComputedFields: never;
         Insert: {
           booking_horizon_days?: number;
           consultation_hours_text?: string | null;
@@ -453,6 +520,7 @@ export type Database = {
           updated_at: string;
           weekday: number;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           is_closed?: boolean;
@@ -476,6 +544,7 @@ export type Database = {
           updated_at: string;
           weekday: number;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           end_time: string;
@@ -534,9 +603,7 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
@@ -559,9 +626,7 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
@@ -583,9 +648,7 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
@@ -607,9 +670,7 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
@@ -623,9 +684,7 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never) = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]

@@ -18,6 +18,7 @@ export type WeeklyAvailabilityRow = TableRow<"weekly_availability">;
 export type WeeklyIntervalRow = TableRow<"weekly_availability_intervals">;
 export type DateOverrideRow = TableRow<"date_overrides">;
 export type SiteSettingsRow = TableRow<"site_settings">;
+export type NotificationLogRow = TableRow<"notification_logs">;
 
 /** Fields a visitor may ever see about a service. */
 export type PublicService = Pick<

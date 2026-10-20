@@ -16,6 +16,8 @@ import {
 import { LinkButton } from "@/components/ui/link-button";
 import { Ornament } from "@/components/ui/ornament";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { ScholarPortrait } from "@/components/scholar/scholar-portrait";
+import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
@@ -49,7 +51,7 @@ export default async function HomePage() {
             <div className="space-y-6 text-center lg:col-span-7 lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-white/5 px-3.5 py-1 text-xs font-medium tracking-wide text-accent sm:text-sm">
                 <SparklesIcon className="size-4" />
-                <span>Official Spiritual Guidance & Consultation</span>
+                <span>Official Spiritual Guidance &amp; Consultation</span>
               </div>
 
               <h1 className="font-display text-4xl leading-[1.1] font-semibold tracking-tight text-ivory sm:text-5xl lg:text-6xl">
@@ -59,9 +61,10 @@ export default async function HomePage() {
               <Ornament className="lg:justify-start" />
 
               <p className="mx-auto max-w-xl text-base leading-relaxed text-ivory/85 sm:text-lg lg:mx-0">
-                Welcome to the official portal of {siteConfig.name}. Providing sincere spiritual
-                consultation, Quranic reflection, and personalized guidance within a confidential,
-                dignified environment.
+                Welcome to the official portal of {siteConfig.name} —{" "}
+                <span className="font-medium text-ivory">{scholarProfile.identity.fullNameEn}</span>
+                . Providing sincere spiritual consultation, Quranic reflection, and personalized
+                guidance within a confidential, dignified environment.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start">
@@ -85,16 +88,21 @@ export default async function HomePage() {
 
             {/* Visual Emblem Column */}
             <div className="flex justify-center lg:col-span-5 lg:justify-end">
-              <div className="relative size-64 rounded-full border-2 border-accent/40 bg-surface/5 p-3 shadow-raised sm:size-80 sm:p-4 lg:size-96">
-                <div className="relative size-full overflow-hidden rounded-full border border-accent/60 bg-cream/20">
+              <div className="relative flex items-center justify-center">
+                {/* Soft Ambient Radiance behind Emblem */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute size-56 rounded-full bg-accent/25 blur-3xl sm:size-72 lg:size-80"
+                />
+                <div className="relative size-56 overflow-hidden rounded-full border border-accent/40 bg-cream/15 p-2 shadow-raised backdrop-blur-xs sm:size-72 lg:size-88">
                   <Image
                     src={siteConfig.logo.src}
                     alt={siteConfig.logo.alt}
                     width={siteConfig.logo.width}
                     height={siteConfig.logo.height}
                     priority
-                    sizes="(min-width: 1024px) 24rem, (min-width: 640px) 20rem, 16rem"
-                    className="size-full object-cover"
+                    sizes="(min-width: 1024px) 22rem, (min-width: 640px) 18rem, 14rem"
+                    className="size-full rounded-full object-cover"
                   />
                 </div>
               </div>
@@ -117,7 +125,7 @@ export default async function HomePage() {
               <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-emerald/10 text-emerald">
                 <ShieldCheckIcon className="size-6" />
               </div>
-              <CardTitle className="text-xl">Confidential & Dignified</CardTitle>
+              <CardTitle className="text-xl">Confidential &amp; Dignified</CardTitle>
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 Every consultation is conducted in complete privacy. Your personal concerns, family
                 matters, and inquiries are held in strict confidence.
@@ -183,58 +191,48 @@ export default async function HomePage() {
         </PageContainer>
       </PageSection>
 
-      {/* 4. About Preview Section */}
-      <PageSection background="default" padding="lg">
+      {/* 4. Scholar Introduction Section */}
+      <PageSection background="default" padding="lg" id="scholar-profile">
         <PageContainer>
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+            {/* Scholar Portrait (Aesthetic Cutout with Moorish Arch) */}
             <div className="flex justify-center lg:col-span-5">
-              <div className="w-full max-w-sm rounded-card border border-border bg-surface-muted p-6 text-center shadow-subtle">
-                <div className="relative mx-auto size-40 overflow-hidden rounded-full border-2 border-accent/50 bg-white sm:size-48">
-                  <Image
-                    src={siteConfig.logo.src}
-                    alt={siteConfig.name}
-                    width={200}
-                    height={200}
-                    className="size-full object-cover"
-                  />
-                </div>
-                <h3 className="mt-4 font-display text-2xl font-semibold text-primary">
-                  {siteConfig.name}
-                </h3>
-                <p className="mt-1 text-xs tracking-wider text-accent-strong uppercase">
-                  Spiritual Advisor & Consultant
-                </p>
-                <Ornament className="mt-3 justify-center" />
-                <p className="mt-3 text-xs leading-relaxed text-muted">
-                  Dedicated to ethical guidance, Quranic reflection, and family counsel.
-                </p>
-              </div>
+              <ScholarPortrait variant="compact" showActions={false} />
             </div>
 
+            {/* Concise Scholar Introduction Content */}
             <div className="space-y-5 lg:col-span-7">
               <p className="text-xs font-semibold tracking-[0.2em] text-accent-strong uppercase sm:text-sm">
-                About the Consultant
+                Scholar Profile &amp; Practice
               </p>
               <h2 className="font-display text-3xl leading-tight font-semibold text-primary sm:text-4xl">
-                Dedicated to Sincere &amp; Ethical Consultation
+                Dedicated to Sincere &amp; Ethical Islamic Guidance
               </h2>
               <Ornament className="justify-start" />
-              <p className="text-base leading-relaxed text-muted sm:text-lg">
-                {siteConfig.name} offers one-on-one consultations designed to bring clarity, peace
-                of mind, and spiritual guidance to individuals facing personal dilemmas, family
-                decisions, or seeking deeper ethical reflection.
+              <p className="text-base leading-relaxed text-foreground/90 sm:text-lg">
+                {scholarProfile.content.en.shortBio}
               </p>
               <p className="text-sm leading-relaxed text-muted">
-                Consultations are carried out with empathy and without false promises or guarantees.
-                We believe in providing thoughtful, scripture-informed counsel that honors the
-                dignity of every visitor.
+                Consultations are conducted in an atmosphere of respect and dignity, without
+                unsupported claims or false guarantees. In accordance with faith, healing and
+                outcomes are recognized as being solely in the hands of Allah (SWT).
               </p>
+
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <LinkButton href="/book" variant="primary" size="md">
+                  Book an Appointment
+                </LinkButton>
+                <LinkButton href="/contact" variant="secondary" size="md">
+                  Contact / Inquiries
+                </LinkButton>
+              </div>
+
               <div className="pt-2">
                 <Link
                   href="/about"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
                 >
-                  <span>Learn more about our background &amp; philosophy</span>
+                  <span>Learn more about background, education &amp; consultation approach</span>
                   <ChevronRightIcon className="size-4" />
                 </Link>
               </div>
@@ -249,7 +247,7 @@ export default async function HomePage() {
           <ContactCTA
             whatsapp={siteSettings?.public_whatsapp}
             phone={siteSettings?.public_phone}
-            email={siteSettings?.public_email}
+            email={siteSettings?.public_email || scholarProfile.contact.email}
           />
         </PageContainer>
       </PageSection>

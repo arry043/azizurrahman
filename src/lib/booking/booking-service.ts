@@ -18,6 +18,8 @@ import {
   localToUtc,
 } from "@/lib/availability/date-utils";
 import { getConsultationTimeZone } from "@/lib/env/server";
+import type { EmailProvider } from "@/lib/notifications/adapters/provider";
+import { sendAppointmentNotification } from "@/lib/notifications/delivery-service";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { normalizeEmail, normalizePhone } from "@/lib/validation/contact";
 import type { ContactMethod, PublicAppointmentReceipt } from "@/types/domain";
@@ -32,6 +34,7 @@ export interface CreateBookingInput {
   dateStr: string; // YYYY-MM-DD
   startTime: string; // HH:mm
   idempotencyKey?: string | null;
+  notificationProvider?: EmailProvider;
 }
 
 export interface BookingResult {
@@ -370,9 +373,35 @@ export async function createGuestBooking(
   }
 
   const receipt = rpcResult.data as unknown as PublicAppointmentReceipt & {
+    appointment_id?: string;
     customer_name: string;
     created_at: string;
   };
+
+  // Safe Post-Commit Side Effect: Dispatch booking acknowledgment notification if email was provided
+  if (normalizedEmail) {
+    void sendAppointmentNotification({
+      event: "booking_request_received",
+      appointment: {
+        appointmentId: receipt.appointment_id || "00000000-0000-0000-0000-000000000000",
+        publicReference: receipt.public_reference,
+        customerName,
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        status: "pending",
+        appointmentStart: appointmentStartUtc.toISOString(),
+        appointmentEnd: appointmentEndUtc.toISOString(),
+        timeZone,
+        services: services.map((s) => ({
+          name: s.name,
+          durationMinutes: s.duration_minutes,
+        })),
+      },
+      provider: input.notificationProvider,
+    }).catch(() => {
+      // Intentionally swallowed: notification errors must never invalidate or fail the booking response
+    });
+  }
 
   return {
     success: true,

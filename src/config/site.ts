@@ -1,12 +1,17 @@
+import { scholarProfile } from "./scholar-profile";
+
 /**
- * Verified, client-independent site facts only. Biography, services, contact details, hours and
- * translations are NOT here until the client approves them (docs/requirements/CONTENT_CHECKLIST.md).
- * Approved contact details will be read from the `site_settings` table, not hard-coded.
+ * Site configuration and official client facts for AZIZURRAHMAN.
+ * Reusable constants across public and administrative pages.
  */
 export const siteConfig = {
   name: "AZIZURRAHMAN",
-  /** Neutral description supported by the client's order letter ("official website"). */
-  description: "Official website of AZIZURRAHMAN.",
+  scholarName: scholarProfile.identity.fullNameEn,
+  scholarNameUrdu: scholarProfile.identity.fullNameUr,
+  scholarTitle: scholarProfile.identity.titleEn,
+  scholarTitleUrdu: scholarProfile.identity.titleUr,
+  description:
+    "Official website of Maulvi Azizurrahman (Aamil). Ethical Islamic spiritual guidance, consultation, and prayer based on Qur'an and Sunnah.",
   locale: "en",
   logo: {
     src: "/brand/azizurrahman-logo-640.png",
@@ -14,6 +19,9 @@ export const siteConfig = {
     height: 640,
     alt: "AZIZURRAHMAN logo",
   },
-  /** Pre-launch: keep the site out of search indexes until content is approved (Phase 13). */
+  scholarPhoto: scholarProfile.identity.avatar,
+  address: scholarProfile.contact.address.full,
+  compactAddress: scholarProfile.contact.address.compact,
+  email: scholarProfile.contact.email,
   indexable: false,
 } as const;
