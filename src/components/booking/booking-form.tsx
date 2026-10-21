@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { InteractiveCalendar } from "@/components/calendar/interactive-calendar";
+import { BrandMark } from "@/components/layout/brand-mark";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Ornament } from "@/components/ui/ornament";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { scholarProfile } from "@/config/scholar-profile";
 import { useTranslations } from "@/i18n/client";
 import { getLocalizedService } from "@/i18n/services-dictionary";
 import { cn } from "@/lib/utils";
@@ -175,9 +177,25 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
     );
 
     return (
-      <div className={cn("mx-auto max-w-2xl space-y-8", className)}>
-        <Card variant="elevated" className="space-y-6 p-6 sm:p-8">
-          <div className="flex flex-col items-center text-center">
+      <div
+        className={cn(
+          "mx-auto max-w-2xl space-y-8 print:m-0 print:max-w-full print:space-y-0",
+          className,
+        )}
+      >
+        <Card
+          variant="elevated"
+          className="appointment-receipt-print space-y-6 p-6 sm:p-8 print:space-y-4 print:p-5"
+        >
+          {/* Print-Only Official Brand Header */}
+          <div className="hidden flex-col items-center border-b border-border/80 pb-4 text-center print:flex">
+            <BrandMark />
+            <p className="mt-2 text-xs font-medium text-muted">{t.receipt.subtitle}</p>
+            <Ornament className="mt-2 justify-center" />
+          </div>
+
+          {/* Web Celebration Header */}
+          <div className="flex flex-col items-center text-center print:hidden">
             <div className="flex size-14 items-center justify-center rounded-full bg-emerald/10 text-emerald">
               <CheckIcon className="size-8" />
             </div>
@@ -189,14 +207,14 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
           </div>
 
           {/* Reference Banner */}
-          <div className="rounded-control border-2 border-accent/60 bg-cream/50 p-5 text-center">
+          <div className="rounded-control border-2 border-accent/60 bg-cream/50 p-5 text-center print:my-3 print:border print:bg-cream/40 print:p-3">
             <span className="text-xs font-semibold tracking-wider text-accent-strong uppercase">
               {t.booking.receiptRefHeading}
             </span>
             <div className="mt-1 flex items-center justify-center gap-3">
               <span
                 dir="ltr"
-                className="font-mono text-2xl font-bold tracking-wider text-primary sm:text-3xl"
+                className="font-mono text-2xl font-bold tracking-wider text-primary sm:text-3xl print:text-2xl"
               >
                 <bdi>{completedReceipt.public_reference}</bdi>
               </span>
@@ -204,7 +222,7 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
                 type="button"
                 onClick={handleCopyReference}
                 aria-label={t.common.copy}
-                className="flex size-9 cursor-pointer items-center justify-center rounded-control border border-border bg-surface text-primary hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
+                className="flex size-9 cursor-pointer items-center justify-center rounded-control border border-border bg-surface text-primary hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus print:hidden"
               >
                 {copied ? (
                   <CheckIcon className="size-4 text-emerald" />
@@ -213,26 +231,30 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
                 )}
               </button>
             </div>
-            {copied && <p className="mt-1 text-xs font-medium text-emerald">{t.common.copied}</p>}
+            {copied && (
+              <p className="mt-1 text-xs font-medium text-emerald print:hidden">
+                {t.common.copied}
+              </p>
+            )}
           </div>
 
           {/* Appointment Details Summary */}
-          <div className="space-y-3 rounded-control border border-border/80 bg-surface-muted/30 p-5 text-sm">
-            <div className="flex justify-between border-b border-border/60 pb-2">
+          <div className="space-y-3 rounded-control border border-border/80 bg-surface-muted/30 p-5 text-sm print:space-y-2 print:p-4">
+            <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
               <span className="text-muted">{t.booking.receiptStatusLabel}</span>
               <Badge variant="warning" size="sm">
                 {t.booking.receiptStatusPending}
               </Badge>
             </div>
-            <div className="flex justify-between border-b border-border/60 pb-2">
+            <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
               <span className="text-muted">{t.booking.receiptApplicantLabel}</span>
               <span className="font-medium text-foreground">{completedReceipt.customer_name}</span>
             </div>
-            <div className="flex justify-between border-b border-border/60 pb-2">
+            <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
               <span className="text-muted">{t.booking.receiptDateLabel}</span>
               <span className="font-medium text-foreground">{formattedDate}</span>
             </div>
-            <div className="flex justify-between border-b border-border/60 pb-2">
+            <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
               <span className="text-muted">{t.booking.receiptTimeLabel}</span>
               <span className="font-medium text-foreground">
                 <bdi dir="ltr">{startTimeFormatted}</bdi> – <bdi dir="ltr">{endTimeFormatted}</bdi>{" "}
@@ -241,7 +263,7 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
             </div>
             <div className="pt-1 text-start">
               <span className="text-muted">{t.booking.receiptServicesLabel}</span>
-              <ul className="mt-1 list-inside list-disc space-y-1 text-foreground">
+              <ul className="mt-1 list-inside list-disc space-y-1 text-foreground print:mt-0.5 print:space-y-0.5">
                 {completedReceipt.services.map((srv, idx) => (
                   <li key={idx}>
                     {srv.service_name_snapshot} ({srv.duration_minutes_snapshot} {t.common.minutes})
@@ -251,12 +273,29 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
             </div>
           </div>
 
-          <Alert variant="info" title={t.booking.receiptAlertTitle}>
+          <Alert
+            variant="info"
+            title={t.booking.receiptAlertTitle}
+            className="print:my-2 print:p-3"
+          >
             {t.booking.receiptAlertDesc}
           </Alert>
 
+          {/* Receipt notice */}
+          <div className="space-y-1 text-start">
+            <p className="text-[11px] leading-relaxed text-muted italic">
+              {t.receipt.noticePrinted}
+            </p>
+            <p className="hidden text-[10px] leading-relaxed text-muted print:block">
+              {isUr ? "رہنمائی یا استفسار کے لیے:" : "For assistance or inquiries:"}{" "}
+              <span dir="ltr">
+                <bdi>{scholarProfile.contact.email}</bdi>
+              </span>
+            </p>
+          </div>
+
           {/* Actions */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <div className="receipt-no-print flex flex-wrap items-center justify-center gap-3 pt-2 print:hidden">
             <LinkButton
               href={`/appointments/${completedReceipt.public_reference}`}
               variant="primary"

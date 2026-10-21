@@ -10,7 +10,7 @@ export async function PublicHeader() {
   const { t } = await getServerTranslations();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-accent/30 bg-surface-inverse/95 shadow-subtle backdrop-blur-md">
+    <header className="site-header sticky top-0 z-40 border-b border-accent/30 bg-surface-inverse/95 shadow-subtle backdrop-blur-md print:hidden">
       <div className="container-page flex min-h-16 items-center justify-between py-2.5 sm:min-h-20">
         <BrandMark inverse />
 

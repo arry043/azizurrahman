@@ -18,7 +18,11 @@ export function AppointmentLookupView() {
   return (
     <>
       {/* Header */}
-      <PageSection background="inverse" padding="md" className="border-b border-accent/30">
+      <PageSection
+        background="inverse"
+        padding="md"
+        className="border-b border-accent/30 print:hidden"
+      >
         <PageContainer>
           <Breadcrumbs
             homeLabel={t.navigation.home}
@@ -40,7 +44,7 @@ export function AppointmentLookupView() {
         <PageContainer>
           <div className="grid items-start gap-12 lg:grid-cols-12 lg:gap-14">
             {/* Left: Guidance & Security Standards */}
-            <div className="space-y-6 text-start lg:col-span-6">
+            <div className="space-y-6 text-start lg:col-span-6 print:hidden">
               <div>
                 <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-accent-strong uppercase sm:text-sm">
                   {isUr ? "رازداری کے معیارات" : "Client Privacy Standards"}
@@ -107,7 +111,7 @@ export function AppointmentLookupView() {
             </div>
 
             {/* Right: Lookup Form Engine */}
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-6 print:col-span-12 print:w-full">
               <LookupForm />
             </div>
           </div>
