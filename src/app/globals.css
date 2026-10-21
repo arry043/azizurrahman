@@ -85,6 +85,9 @@
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-urdu:
+    var(--font-urdu), "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting",
+    "Pak Nastaleeq", system-ui, sans-serif;
 
   --radius-xs: 0.25rem;
   --radius-sm: 0.375rem;
@@ -154,6 +157,36 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     line-height: 1.6;
+  }
+
+  html[lang="ur"],
+  html[dir="rtl"],
+  :lang(ur) {
+    font-family: var(--font-urdu);
+  }
+
+  html[lang="ur"] h1,
+  html[lang="ur"] h2,
+  html[lang="ur"] h3,
+  html[dir="rtl"] h1,
+  html[dir="rtl"] h2,
+  html[dir="rtl"] h3,
+  :lang(ur) h1,
+  :lang(ur) h2,
+  :lang(ur) h3 {
+    font-family: var(--font-urdu);
+    line-height: 1.45;
+  }
+
+  html[lang="ur"] p,
+  html[dir="rtl"] p,
+  :lang(ur) p {
+    line-height: 1.85;
+  }
+
+  /* Directional mirroring for navigation chevrons and back/forward icons */
+  [dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
   }
 
   h1,

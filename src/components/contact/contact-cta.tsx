@@ -1,6 +1,9 @@
+"use client";
+
 import { ContactActions } from "@/components/contact/contact-actions";
-import { Ornament } from "@/components/ui/ornament";
 import { LinkButton } from "@/components/ui/link-button";
+import { Ornament } from "@/components/ui/ornament";
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 export interface ContactCTAProps {
@@ -14,14 +17,26 @@ export interface ContactCTAProps {
 }
 
 export function ContactCTA({
-  title = "Ready for a Personal Consultation?",
-  description = "Appointments are conducted in a calm, confidential, and dedicated setting. Choose a service or reach out for inquiries.",
+  title,
+  description,
   whatsapp,
   phone,
   email,
   showBookButton = true,
   className,
 }: ContactCTAProps) {
+  const { t, locale } = useTranslations();
+  const isUr = locale === "ur";
+
+  const displayTitle =
+    title ?? (isUr ? t.home.contactCTAHeading : "Ready for a Personal Consultation?");
+
+  const displayDescription =
+    description ??
+    (isUr
+      ? t.home.contactCTADesc
+      : "Appointments are conducted in a calm, confidential, and dedicated setting. Choose a service or reach out for inquiries.");
+
   return (
     <div
       className={cn(
@@ -41,18 +56,18 @@ export function ContactCTA({
 
       <div className="relative z-10 mx-auto max-w-2xl space-y-4">
         <p className="text-xs font-semibold tracking-[0.2em] text-accent uppercase sm:text-sm">
-          Confidential & Dedicated Guidance
+          {isUr ? "بامقصد اور پرسکون روحانی مشاورت" : "Confidential & Dedicated Guidance"}
         </p>
         <h2 className="font-display text-3xl font-semibold tracking-tight text-ivory sm:text-4xl lg:text-5xl">
-          {title}
+          {displayTitle}
         </h2>
         <Ornament className="justify-center" />
-        <p className="text-base leading-relaxed text-ivory/80 sm:text-lg">{description}</p>
+        <p className="text-base leading-relaxed text-ivory/80 sm:text-lg">{displayDescription}</p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
           {showBookButton && (
             <LinkButton href="/book" variant="primary" size="lg">
-              Book an Appointment
+              {t.common.bookAppointment}
             </LinkButton>
           )}
           <LinkButton
@@ -61,7 +76,7 @@ export function ContactCTA({
             size="lg"
             className="border-accent text-accent hover:bg-accent/10"
           >
-            Contact Channels
+            {isUr ? "رابطے کے ذرائع" : "Contact Channels"}
           </LinkButton>
         </div>
 

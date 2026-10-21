@@ -1,5 +1,9 @@
+"use client";
+
 import { ExternalLinkIcon, MailIcon, PhoneIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
+import { scholarProfile } from "@/config/scholar-profile";
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { normalizeEmail, normalizePhone } from "@/lib/validation/contact";
 
@@ -17,13 +21,18 @@ export interface ContactActionsProps {
  * Constructs an RFC-compliant, URL-encoded WhatsApp direct conversation link.
  * Does not transmit any message automatically; the visitor retains full agency to review and send.
  */
-export function buildWhatsAppUrl(phone: string, template?: string | null): string | null {
+export function buildWhatsAppUrl(
+  phone: string,
+  template?: string | null,
+  isUr = false,
+): string | null {
   const normalized = normalizePhone(phone);
   if (!normalized) return null;
 
   const digits = normalized.replace(/^\+/, "");
-  const defaultText =
-    "Assalamu Alaikum, I would like to enquire about an appointment with Maulvi Azizurrahman.";
+  const defaultText = isUr
+    ? scholarProfile.contact.whatsapp.defaultMessageUr
+    : scholarProfile.contact.whatsapp.defaultMessageEn;
   const text = encodeURIComponent(template?.trim() || defaultText);
 
   return `https://wa.me/${digits}?text=${text}`;
@@ -38,7 +47,10 @@ export function ContactActions({
   className,
   variant = "horizontal",
 }: ContactActionsProps) {
-  const waUrl = whatsapp ? buildWhatsAppUrl(whatsapp, whatsappTemplate) : null;
+  const { locale } = useTranslations();
+  const isUr = locale === "ur";
+
+  const waUrl = whatsapp ? buildWhatsAppUrl(whatsapp, whatsappTemplate, isUr) : null;
   const normalizedPhone = phone ? normalizePhone(phone) : null;
   const normalizedEmail = email ? normalizeEmail(email) : null;
 
@@ -53,12 +65,13 @@ export function ContactActions({
         )}
       >
         <p className="text-sm text-muted">
-          Direct contact channels (WhatsApp, phone, and email) are currently being finalized and
-          will be published upon verification (pending verification).
+          {isUr
+            ? "رابطے کے براہ راست ذرائع (واٹس ایپ، فون اور ای میل) فی الوقت توثیق کے مراحل میں ہیں اور تصدیق کے فوراً بعد شائع کر دیے جائیں گے۔"
+            : "Direct contact channels (WhatsApp, phone, and email) are currently being finalized and will be published upon verification (pending verification)."}
         </p>
         <div className="mt-4">
           <LinkButton href="/book" variant="primary" size="md">
-            Request an Appointment Online
+            {isUr ? "آن لائن وقت حاصل کریں" : "Request an Appointment Online"}
           </LinkButton>
         </div>
       </div>
@@ -80,42 +93,59 @@ export function ContactActions({
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Message Maulvi Azizurrahman on WhatsApp (opens conversation in new window; you review and send)"
+            aria-label={
+              isUr
+                ? "مولوی عزیز الرحمٰن صاحب کو واٹس ایپ پر پیغام ارسال کریں (نئی ونڈو میں گفتگو کھلے گی)"
+                : "Message Maulvi Azizurrahman on WhatsApp (opens conversation in new window; you review and send)"
+            }
             className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-emerald/40 bg-emerald/10 px-5 py-2.5 text-base font-medium text-emerald transition-colors hover:bg-emerald/20 focus-visible:outline-3 focus-visible:outline-focus"
           >
             <WhatsAppIcon className="size-5 shrink-0 text-emerald" />
-            <span>Message on WhatsApp</span>
-            <ExternalLinkIcon className="ml-1 size-3.5 opacity-60" />
+            <span>{isUr ? "واٹس ایپ پر رابطہ کریں" : "Message on WhatsApp"}</span>
+            <ExternalLinkIcon className="ml-1 size-3.5 opacity-60 rtl:rotate-180" />
           </a>
         )}
 
         {normalizedPhone && (
           <a
             href={`tel:${normalizedPhone}`}
-            aria-label={`Call Maulvi Azizurrahman at ${normalizedPhone}`}
+            aria-label={
+              isUr
+                ? `مولوی عزیز الرحمٰن صاحب کو فون کریں ${normalizedPhone}`
+                : `Call Maulvi Azizurrahman at ${normalizedPhone}`
+            }
             className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-border bg-surface px-5 py-2.5 text-base font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
           >
             <PhoneIcon className="size-5 shrink-0 text-primary" />
-            <span>Call: {normalizedPhone}</span>
+            <span>
+              {isUr ? "کال کریں: " : "Call: "}
+              <bdi dir="ltr">{normalizedPhone}</bdi>
+            </span>
           </a>
         )}
 
         {normalizedEmail && (
           <a
             href={`mailto:${normalizedEmail}`}
-            aria-label={`Send email to ${normalizedEmail}`}
+            aria-label={
+              isUr ? `ای میل ارسال کریں ${normalizedEmail}` : `Send email to ${normalizedEmail}`
+            }
             className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-control border border-border bg-surface px-5 py-2.5 text-base font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
           >
             <MailIcon className="size-5 shrink-0 text-primary" />
-            <span>Email: {normalizedEmail}</span>
+            <span>
+              {isUr ? "ای میل: " : "Email: "}
+              <bdi dir="ltr">{normalizedEmail}</bdi>
+            </span>
           </a>
         )}
       </div>
 
       {showNote && waUrl && (
         <p className="text-xs text-muted">
-          Note: Opening WhatsApp opens a direct conversation with a prepared inquiry. You must
-          review and send the message yourself.
+          {isUr
+            ? "نوٹ: واٹس ایپ کھولنے پر پہلے سے تیار شدہ پیغام کے ساتھ براہ راست گفتگو شروع ہو جائے گی۔ ارسال کرنے سے قبل پیغام کو جانچنا آپ کی صوابدید ہے۔"
+            : "Note: Opening WhatsApp opens a direct conversation with a prepared inquiry. You must review and send the message yourself."}
         </p>
       )}
     </div>

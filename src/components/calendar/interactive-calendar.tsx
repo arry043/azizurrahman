@@ -10,6 +10,7 @@ import {
   ClockIcon,
   SpinnerIcon,
 } from "@/components/ui/icons";
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 export interface InteractiveCalendarProps {
@@ -43,22 +44,6 @@ interface DayData {
   timezone: string;
 }
 
-const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 export function InteractiveCalendar({
   serviceIds,
   totalDurationMinutes,
@@ -67,6 +52,9 @@ export function InteractiveCalendar({
   onSelectSlot,
   className,
 }: InteractiveCalendarProps) {
+  const { t, locale } = useTranslations();
+  const isUr = locale === "ur";
+
   const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth() + 1);
 
@@ -105,7 +93,7 @@ export function InteractiveCalendar({
       .then(async (res) => {
         if (!res.ok) {
           const errJson = await res.json().catch(() => ({}));
-          throw new Error(errJson.error || "Failed to load availability for this month");
+          throw new Error(errJson.error || t.calendar.errorLoadMonth);
         }
         return res.json();
       })
@@ -117,8 +105,7 @@ export function InteractiveCalendar({
       })
       .catch((err: unknown) => {
         if (isMounted) {
-          const msg =
-            err instanceof Error ? err.message : "Failed to load availability for this month";
+          const msg = err instanceof Error ? err.message : t.calendar.errorLoadMonth;
           setErrorMessage(msg);
         }
       });
@@ -126,7 +113,7 @@ export function InteractiveCalendar({
     return () => {
       isMounted = false;
     };
-  }, [currentYear, currentMonth, serviceIds]);
+  }, [currentYear, currentMonth, serviceIds, t]);
 
   // Fetch slots whenever selectedDate or services change
   useEffect(() => {
@@ -144,7 +131,7 @@ export function InteractiveCalendar({
       .then(async (res) => {
         if (!res.ok) {
           const errJson = await res.json().catch(() => ({}));
-          throw new Error(errJson.error || "Failed to load available slots for selected date");
+          throw new Error(errJson.error || t.calendar.errorLoadSlots);
         }
         return res.json();
       })
@@ -152,29 +139,27 @@ export function InteractiveCalendar({
         if (isMounted) {
           setDayData(json.data);
           const slotCount = json.data?.slots?.length ?? 0;
-          setAnnouncement(
-            `${slotCount} consultation slot${slotCount === 1 ? "" : "s"} available for ${selectedDate}.`,
-          );
+          setAnnouncement(`${slotCount} ${t.calendar.statusAvailable} (${selectedDate}).`);
         }
       })
       .catch(() => {
         if (isMounted) {
           setDayData(null);
-          setAnnouncement(`No consultation slots available for ${selectedDate}.`);
+          setAnnouncement(t.calendar.noSlotsNotice);
         }
       });
 
     return () => {
       isMounted = false;
     };
-  }, [selectedDate, serviceIds]);
+  }, [selectedDate, serviceIds, t]);
 
   function handlePrevMonth() {
     const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
     const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
     setCurrentYear(prevYear);
     setCurrentMonth(prevMonth);
-    setAnnouncement(`Showing ${MONTH_NAMES[prevMonth - 1]} ${prevYear}`);
+    setAnnouncement(`${t.calendar.months[prevMonth - 1]} ${prevYear}`);
   }
 
   function handleNextMonth() {
@@ -182,7 +167,7 @@ export function InteractiveCalendar({
     const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
     setCurrentYear(nextYear);
     setCurrentMonth(nextMonth);
-    setAnnouncement(`Showing ${MONTH_NAMES[nextMonth - 1]} ${nextYear}`);
+    setAnnouncement(`${t.calendar.months[nextMonth - 1]} ${nextYear}`);
   }
 
   // Calculate grid padding for the first day of the month
@@ -194,17 +179,21 @@ export function InteractiveCalendar({
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-control border border-border/80 bg-cream/30 px-4 py-2.5 text-xs text-muted">
         <div className="flex items-center gap-1.5 font-medium text-foreground">
           <ClockIcon className="size-4 text-primary" />
-          <span>Consultation Timezone:</span>
-          <span className="font-semibold text-primary">{timeZoneDisplay} (IST)</span>
+          <span>{t.calendar.timezoneLabel}</span>
+          <span className="font-semibold text-primary" dir="ltr">
+            <bdi>{timeZoneDisplay} (IST)</bdi>
+          </span>
         </div>
         <div>
-          <span>Total Session: </span>
-          <span className="font-semibold text-primary">{totalDurationMinutes} mins</span>
+          <span>{t.calendar.totalSession} </span>
+          <span className="font-semibold text-primary">
+            {totalDurationMinutes} {t.common.minutes}
+          </span>
         </div>
       </div>
 
       {errorMessage && (
-        <Alert variant="error" title="Availability Error">
+        <Alert variant="error" title={t.calendar.errorTitle}>
           {errorMessage}
         </Alert>
       )}
@@ -225,7 +214,7 @@ export function InteractiveCalendar({
               className="flex items-center gap-2 font-display text-xl font-semibold text-primary sm:text-2xl"
             >
               <span>
-                {MONTH_NAMES[currentMonth - 1]} {currentYear}
+                {t.calendar.months[currentMonth - 1]} {currentYear}
               </span>
               {loadingMonth && <SpinnerIcon className="size-4 animate-spin text-accent" />}
             </h4>
@@ -233,25 +222,25 @@ export function InteractiveCalendar({
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                aria-label="Previous month"
-                className="flex size-11 items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus sm:size-10"
+                aria-label={t.calendar.previousMonth}
+                className="flex size-11 cursor-pointer items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus sm:size-10"
               >
-                <ChevronLeftIcon className="size-4" />
+                <ChevronLeftIcon className="size-4 rtl:rotate-180" />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
-                aria-label="Next month"
-                className="flex size-11 items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus sm:size-10"
+                aria-label={t.calendar.nextMonth}
+                className="flex size-11 cursor-pointer items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus sm:size-10"
               >
-                <ChevronRightIcon className="size-4" />
+                <ChevronRightIcon className="size-4 rtl:rotate-180" />
               </button>
             </div>
           </div>
 
           {/* Weekday Labels */}
           <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold tracking-wider text-muted uppercase">
-            {WEEKDAY_NAMES.map((w) => (
+            {t.calendar.weekdays.map((w) => (
               <div key={w} className="py-1.5">
                 {w}
               </div>
@@ -278,11 +267,12 @@ export function InteractiveCalendar({
               const isFullyBooked = day.status === "fully_booked";
               const isPast = day.status === "past" || day.status === "out_of_horizon";
 
-              let stateLabel = "Unavailable";
-              if (isAvailable) stateLabel = `${day.availableSlotCount} slots available`;
-              else if (isClosed) stateLabel = "Closed";
-              else if (isFullyBooked) stateLabel = "Fully booked";
-              else if (isPast) stateLabel = "Past date";
+              let stateLabel = t.calendar.statusUnavailable;
+              if (isAvailable)
+                stateLabel = `${day.availableSlotCount} ${t.calendar.statusAvailable}`;
+              else if (isClosed) stateLabel = t.calendar.statusClosed;
+              else if (isFullyBooked) stateLabel = t.calendar.statusFullyBooked;
+              else if (isPast) stateLabel = t.calendar.statusPast;
 
               return (
                 <button
@@ -292,16 +282,14 @@ export function InteractiveCalendar({
                   aria-disabled={!isAvailable}
                   onClick={() => {
                     if (isAvailable) {
-                      setAnnouncement(
-                        `Selected ${MONTH_NAMES[m! - 1]} ${d}, ${y}. Loading available times.`,
-                      );
+                      setAnnouncement(`${t.calendar.months[m! - 1]} ${d}, ${y}: ${stateLabel}`);
                       onSelectSlot(day.date, "");
                     }
                   }}
-                  aria-label={`${MONTH_NAMES[m! - 1]} ${d}, ${y}: ${stateLabel}`}
+                  aria-label={`${t.calendar.months[m! - 1]} ${d}, ${y}: ${stateLabel}`}
                   aria-pressed={isSelected}
                   className={cn(
-                    "relative flex min-h-11 min-w-10 flex-col items-center justify-center rounded-control text-xs font-medium transition-all sm:h-12 sm:min-w-11 sm:text-sm",
+                    "relative flex min-h-11 min-w-10 cursor-pointer flex-col items-center justify-center rounded-control text-xs font-medium transition-all sm:h-12 sm:min-w-11 sm:text-sm",
                     "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus",
                     isSelected
                       ? "border-2 border-primary bg-primary font-semibold text-primary-foreground shadow-subtle"
@@ -310,7 +298,7 @@ export function InteractiveCalendar({
                         : "cursor-not-allowed border border-transparent bg-surface-muted/40 text-muted/40",
                   )}
                 >
-                  <span>{d}</span>
+                  <span dir="ltr">{d}</span>
                   {isAvailable && !isSelected && (
                     <span className="size-1 rounded-full bg-emerald" aria-hidden="true" />
                   )}
@@ -323,43 +311,46 @@ export function InteractiveCalendar({
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 border-t border-border/60 pt-4 text-xs text-muted">
             <div className="flex items-center gap-1.5">
               <span className="size-2.5 rounded-full bg-emerald" />
-              <span>Available</span>
+              <span>{t.calendar.available}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="size-2.5 rounded-full bg-primary" />
-              <span>Selected</span>
+              <span>{t.calendar.selected}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="size-2.5 rounded-full border border-border bg-surface-muted" />
-              <span>Closed / Booked</span>
+              <span>{t.calendar.closedBooked}</span>
             </div>
           </div>
         </div>
 
         {/* Time Slots Column */}
-        <div className="rounded-card border border-border bg-surface p-5 shadow-card lg:col-span-5">
+        <div className="rounded-card border border-border bg-surface p-5 text-start shadow-card lg:col-span-5">
           <div className="border-b border-border/60 pb-3">
             <h4 className="font-display text-lg font-semibold text-primary">
               {selectedDate ? (
                 <>
-                  Available Times for{" "}
-                  <span className="text-foreground">
-                    {new Date(selectedDate + "T00:00:00Z").toLocaleDateString("en-US", {
-                      timeZone: "UTC",
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                  {t.calendar.availableTimesFor}{" "}
+                  <span className="text-foreground" dir="ltr">
+                    <bdi>
+                      {new Date(selectedDate + "T00:00:00Z").toLocaleDateString(
+                        isUr ? "ur-PK" : "en-US",
+                        {
+                          timeZone: "UTC",
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        },
+                      )}
+                    </bdi>
                   </span>
                 </>
               ) : (
-                "Select a Date"
+                t.calendar.selectADate
               )}
             </h4>
             <p className="mt-1 text-xs text-muted">
-              {selectedDate
-                ? "Select your preferred consultation start time."
-                : "Choose an available date on the calendar to view consultation hours."}
+              {selectedDate ? t.calendar.selectStartTime : t.calendar.chooseDateNotice}
             </p>
           </div>
 
@@ -367,17 +358,15 @@ export function InteractiveCalendar({
             {loadingSlots ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted">
                 <SpinnerIcon className="size-6 animate-spin text-primary" />
-                <span className="mt-2 text-xs">Loading available slots...</span>
+                <span className="mt-2 text-xs">{t.calendar.loadingSlots}</span>
               </div>
             ) : !selectedDate ? (
               <div className="flex flex-col items-center justify-center py-12 text-center text-muted">
                 <CalendarIcon className="size-8 text-border" />
-                <p className="mt-3 text-xs leading-relaxed">
-                  Please select an available date from the calendar on the left to see times.
-                </p>
+                <p className="mt-3 text-xs leading-relaxed">{t.calendar.chooseDateNotice}</p>
               </div>
             ) : activeDayData?.slots && activeDayData.slots.length > 0 ? (
-              <div className="max-h-[340px] space-y-2 overflow-y-auto pr-1">
+              <div className="max-h-[340px] space-y-2 overflow-y-auto pe-1">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
                   {activeDayData.slots.map((slot) => {
                     const isTimeSelected = selectedTime === slot.startTime;
@@ -389,15 +378,19 @@ export function InteractiveCalendar({
                         onClick={() => onSelectSlot(selectedDate, slot.startTime)}
                         aria-pressed={isTimeSelected}
                         className={cn(
-                          "flex min-h-11 flex-col items-center justify-center rounded-control border p-2 text-xs font-medium transition-all sm:text-sm",
+                          "flex min-h-11 cursor-pointer flex-col items-center justify-center rounded-control border p-2 text-xs font-medium transition-all sm:text-sm",
                           "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus",
                           isTimeSelected
                             ? "border-primary bg-primary font-semibold text-primary-foreground shadow-subtle"
                             : "border-border bg-surface text-foreground hover:border-primary hover:bg-cream/40",
                         )}
                       >
-                        <span className="font-semibold">{slot.startTime}</span>
-                        <span className="text-[10px] opacity-80">until {slot.endTime}</span>
+                        <span className="font-semibold" dir="ltr">
+                          <bdi>{slot.startTime}</bdi>
+                        </span>
+                        <span className="text-[10px] opacity-80">
+                          {t.calendar.until} <bdi dir="ltr">{slot.endTime}</bdi>
+                        </span>
                       </button>
                     );
                   })}
@@ -406,10 +399,10 @@ export function InteractiveCalendar({
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-center text-muted">
                 <ClockIcon className="size-8 text-border" />
-                <p className="mt-2 text-sm font-medium text-foreground">No Slots Available</p>
-                <p className="mt-1 text-xs text-muted">
-                  All consultation slots for this date are fully reserved or elapsed.
+                <p className="mt-2 text-sm font-medium text-foreground">
+                  {t.calendar.noSlotsAvailable}
                 </p>
+                <p className="mt-1 text-xs text-muted">{t.calendar.noSlotsNotice}</p>
               </div>
             )}
           </div>

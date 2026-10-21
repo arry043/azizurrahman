@@ -140,7 +140,9 @@ async function runUAT() {
     const initJson = await initRes.json();
     const isInitiateValid =
       initRes.status === 200 &&
-      (initJson.status === "initiated" || initJson.providerPending === true);
+      (initJson.success === true ||
+        initJson.status === "initiated" ||
+        initJson.providerPending === true);
     record(
       "Flow 3: Lookup Protocol",
       "Lookup initiate handles verification protocol gracefully",

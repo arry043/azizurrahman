@@ -4,8 +4,11 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { DesktopNavigation } from "@/components/layout/desktop-navigation";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
 import { LinkButton } from "@/components/ui/link-button";
+import { getServerTranslations } from "@/i18n/server";
 
-export function PublicHeader() {
+export async function PublicHeader() {
+  const { t } = await getServerTranslations();
+
   return (
     <header className="sticky top-0 z-40 border-b border-accent/30 bg-surface-inverse/95 shadow-subtle backdrop-blur-md">
       <div className="container-page flex min-h-16 items-center justify-between py-2.5 sm:min-h-20">
@@ -24,7 +27,7 @@ export function PublicHeader() {
             size="sm"
             className="min-h-9 px-3 py-1.5 text-xs sm:text-sm"
           >
-            Book
+            {t.navigation.bookShort}
           </LinkButton>
           <Suspense fallback={<div className="min-h-11 min-w-11" />}>
             <MobileNavigation />

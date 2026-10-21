@@ -4,11 +4,29 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { CurrentYear } from "@/components/layout/current-year";
 import { MailIcon, MapPinIcon } from "@/components/ui/icons";
 import { Ornament } from "@/components/ui/ornament";
-import { PUBLIC_NAV_ITEMS } from "@/config/navigation";
 import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
+import { getServerTranslations } from "@/i18n/server";
 
-export function PublicFooter() {
+export async function PublicFooter() {
+  const { t, locale } = await getServerTranslations();
+  const isUr = locale === "ur";
+  const scholarName = isUr
+    ? scholarProfile.identity.fullNameUr
+    : scholarProfile.identity.fullNameEn;
+  const aboutIntro = isUr
+    ? scholarProfile.content.ur.aboutIntro
+    : scholarProfile.content.en.aboutIntro;
+
+  const navItems = [
+    { label: t.navigation.home, href: "/" },
+    { label: t.navigation.about, href: "/about" },
+    { label: t.navigation.services, href: "/services" },
+    { label: t.navigation.book, href: "/book" },
+    { label: t.navigation.contact, href: "/contact" },
+    { label: t.navigation.lookup, href: "/appointments/lookup" },
+  ];
+
   return (
     <footer className="border-t border-border bg-surface-muted text-foreground">
       <div className="container-page py-12 sm:py-16">
@@ -16,12 +34,9 @@ export function PublicFooter() {
           {/* Brand & Scholar Identity Column */}
           <div className="space-y-4 md:col-span-2 lg:col-span-2">
             <BrandMark />
-            <p className="font-display text-lg font-semibold text-primary">
-              {scholarProfile.identity.fullNameEn}
-            </p>
+            <p className="font-display text-lg font-semibold text-primary">{scholarName}</p>
             <p className="max-w-md text-sm leading-relaxed text-muted">
-              {scholarProfile.content.en.aboutIntro} Inquiries and consultation appointments are
-              treated with the highest level of personal privacy and dignity.
+              {aboutIntro} {t.footer.tagline}
             </p>
 
             {/* Official Contact & Compact Address */}
@@ -34,9 +49,10 @@ export function PublicFooter() {
                 <MailIcon className="size-4 shrink-0 text-accent-strong" />
                 <a
                   href={`mailto:${scholarProfile.contact.email}`}
+                  dir="ltr"
                   className="font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-focus"
                 >
-                  {scholarProfile.contact.email}
+                  <bdi>{scholarProfile.contact.email}</bdi>
                 </a>
               </div>
             </div>
@@ -47,10 +63,10 @@ export function PublicFooter() {
           {/* Quick Navigation Links */}
           <div className="space-y-3">
             <h4 className="font-display text-base font-semibold tracking-wider text-primary uppercase">
-              Navigation
+              {t.footer.navHeading}
             </h4>
             <ul className="space-y-2 text-sm">
-              {PUBLIC_NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -66,18 +82,16 @@ export function PublicFooter() {
           {/* Consultation & Booking Info */}
           <div className="space-y-3">
             <h4 className="font-display text-base font-semibold tracking-wider text-primary uppercase">
-              Appointments
+              {t.footer.appointmentsHeading}
             </h4>
-            <p className="text-sm leading-relaxed text-muted">
-              Consultations are scheduled strictly in advance to ensure dedicated time and privacy.
-            </p>
+            <p className="text-sm leading-relaxed text-muted">{t.home.heroAdvanceNotice}</p>
             <div className="space-y-2 pt-2">
               <div>
                 <Link
                   href="/book"
                   className="inline-flex items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"
                 >
-                  Book an Appointment →
+                  {t.footer.bookLink}
                 </Link>
               </div>
               <div>
@@ -85,7 +99,7 @@ export function PublicFooter() {
                   href="/contact"
                   className="inline-flex items-center text-sm text-muted transition-colors hover:text-primary"
                 >
-                  Direct Contact &amp; Inquiries
+                  {t.footer.contactLink}
                 </Link>
               </div>
               <div>
@@ -93,7 +107,7 @@ export function PublicFooter() {
                   href="/appointments/lookup"
                   className="inline-flex items-center text-xs text-muted transition-colors hover:text-primary"
                 >
-                  Lookup Existing Appointment
+                  {t.footer.lookupLink}
                 </Link>
               </div>
               <div>
@@ -101,7 +115,7 @@ export function PublicFooter() {
                   href="/privacy"
                   className="inline-flex items-center text-xs text-muted transition-colors hover:text-primary"
                 >
-                  Privacy Notice &amp; Data Policy
+                  {t.footer.privacyLink}
                 </Link>
               </div>
             </div>
@@ -111,16 +125,12 @@ export function PublicFooter() {
         {/* Disclaimer & Copyright */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/70 pt-8 text-center text-xs text-muted sm:flex-row sm:text-left">
           <p>
-            © <CurrentYear /> {siteConfig.name} — {scholarProfile.identity.fullNameEn}. All rights
-            reserved. ·{" "}
+            © <CurrentYear /> {siteConfig.name} — {scholarName}. {t.common.allRightsReserved} ·{" "}
             <Link href="/privacy" className="underline hover:text-primary">
-              Privacy Notice
+              {t.navigation.privacy}
             </Link>
           </p>
-          <p className="max-w-md">
-            Consultations are spiritual and advisory in nature. Outcomes are solely by Allah&apos;s
-            grace.
-          </p>
+          <p className="max-w-md">{t.footer.disclaimer}</p>
         </div>
       </div>
     </footer>

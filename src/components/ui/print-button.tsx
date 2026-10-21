@@ -2,8 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { PrinterIcon } from "@/components/ui/icons";
+import { useTranslations } from "@/i18n/client";
 
-export function PrintButton({ className }: { className?: string }) {
+export function PrintButton({ className, label }: { className?: string; label?: string }) {
+  const { t } = useTranslations();
+
   return (
     <Button
       variant="primary"
@@ -12,7 +15,7 @@ export function PrintButton({ className }: { className?: string }) {
       onClick={() => window.print()}
       leftIcon={<PrinterIcon className="size-4" />}
     >
-      Print Receipt
+      {label || t.receipt.printButton}
     </Button>
   );
 }

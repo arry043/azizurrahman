@@ -12,6 +12,8 @@ import { Ornament } from "@/components/ui/ornament";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
+import { getServerTranslations } from "@/i18n/server";
+import { getLocalizedService } from "@/i18n/services-dictionary";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
@@ -30,13 +32,20 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function ContactPage() {
-  const [siteSettings, services] = await Promise.all([
+  const [{ t, locale, interpolate }, siteSettings, services] = await Promise.all([
+    getServerTranslations(),
     getPublicSiteSettings(),
     getActiveServices(),
   ]);
 
-  const serviceNames = services.map((s) => s.name);
-  const displayAddress = siteSettings?.public_address || scholarProfile.contact.address.full;
+  const isUr = locale === "ur";
+  const scholarName = isUr
+    ? scholarProfile.identity.fullNameUr
+    : scholarProfile.identity.fullNameEn;
+  const serviceNames = services.map((s) => getLocalizedService(s, locale).name);
+  const displayAddress = isUr
+    ? siteSettings?.public_address || "موضع کھریواں، سرائمیر، اعظم گڑھ، اتر پردیش، انڈیا — 276305"
+    : siteSettings?.public_address || scholarProfile.contact.address.full;
   const displayEmail = siteSettings?.public_email;
 
   return (
@@ -44,11 +53,14 @@ export default async function ContactPage() {
       {/* Header */}
       <PageSection background="inverse" padding="md" className="border-b border-accent/30">
         <PageContainer>
-          <Breadcrumbs items={[{ label: "Contact" }]} className="mb-4 text-ivory/70" />
+          <Breadcrumbs
+            items={[{ label: isUr ? "رابطہ" : "Contact" }]}
+            className="mb-4 text-ivory/70"
+          />
           <SectionHeading
-            kicker="Direct Communication"
-            title="Get in Touch"
-            description={`Have questions regarding spiritual consultation or appointment requests? Reach out to ${scholarProfile.identity.fullNameEn} through official channels.`}
+            kicker={t.contact.kicker}
+            title={t.contact.title}
+            description={interpolate(t.contact.description, { name: scholarName })}
             inverse
             align="center"
           />
@@ -63,15 +75,14 @@ export default async function ContactPage() {
             <div className="space-y-8 lg:col-span-6">
               <div>
                 <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-accent-strong uppercase sm:text-sm">
-                  Direct Channels
+                  {t.contact.directChannelsKicker}
                 </p>
                 <h3 className="font-display text-3xl font-semibold text-primary">
-                  Official Contact Channels
+                  {t.contact.directChannelsTitle}
                 </h3>
                 <Ornament className="mt-3 justify-start" />
                 <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-                  Official inquiries regarding Islamic spiritual guidance, supplications (duas), and
-                  consultation requests are welcomed through the verified channels below.
+                  {t.contact.directChannelsDesc}
                 </p>
               </div>
 
@@ -87,12 +98,11 @@ export default async function ContactPage() {
               {/* Phone / WhatsApp International Confirmation Notice */}
               {!siteSettings?.public_phone && !siteSettings?.public_whatsapp && (
                 <div className="rounded-control border border-border/80 bg-surface-muted/60 p-4 text-xs text-muted">
-                  <p className="font-semibold text-primary">Telephone &amp; WhatsApp Notice:</p>
+                  <p className="font-semibold text-primary">{t.contact.phoneNoticeTitle}</p>
                   <p className="mt-1 leading-relaxed">
-                    Client contact number ({scholarProfile.contact.phone.rawInput}) is pending
-                    international format confirmation (+91 prefix). Calling and WhatsApp links will
-                    be activated once confirmed. You may reach out immediately by official email or
-                    request a consultation online.
+                    {interpolate(t.contact.phoneNoticeDesc, {
+                      phone: scholarProfile.contact.phone.rawInput,
+                    })}
                   </p>
                 </div>
               )}
@@ -101,19 +111,18 @@ export default async function ContactPage() {
               <div className="grid gap-4 pt-2 sm:grid-cols-2">
                 <Card variant="muted" className="p-5">
                   <div className="mb-2 flex items-center gap-2.5 text-primary">
-                    <ClockIcon className="size-5 text-accent-strong" />
-                    <CardTitle className="text-base">Consultation Hours</CardTitle>
+                    <ClockIcon className="size-5 shrink-0 text-accent-strong" />
+                    <CardTitle className="text-base">{t.contact.hoursTitle}</CardTitle>
                   </div>
                   <p className="text-xs leading-relaxed text-muted sm:text-sm">
-                    {siteSettings?.consultation_hours_text ||
-                      "Consultations are conducted strictly by confirmed appointment to respect client privacy."}
+                    {siteSettings?.consultation_hours_text || t.contact.hoursDefault}
                   </p>
                 </Card>
 
                 <Card variant="muted" className="p-5">
                   <div className="mb-2 flex items-center gap-2.5 text-primary">
-                    <MapPinIcon className="size-5 text-accent-strong" />
-                    <CardTitle className="text-base">Official Address</CardTitle>
+                    <MapPinIcon className="size-5 shrink-0 text-accent-strong" />
+                    <CardTitle className="text-base">{t.contact.addressTitle}</CardTitle>
                   </div>
                   <p className="text-xs leading-relaxed text-muted sm:text-sm">{displayAddress}</p>
                   <div className="mt-3">
@@ -123,13 +132,10 @@ export default async function ContactPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                     >
-                      <span>Search on Google Maps</span>
-                      <ExternalLinkIcon className="size-3 opacity-70" />
+                      <span>{t.contact.mapsSearch}</span>
+                      <ExternalLinkIcon className="size-3 opacity-70 rtl:rotate-180" />
                     </a>
-                    <p className="mt-1 text-[11px] text-muted italic">
-                      Notice: Consultations are held by appointment; precise map pin is not
-                      verified.
-                    </p>
+                    <p className="mt-1 text-[11px] text-muted italic">{t.contact.mapsNotice}</p>
                   </div>
                 </Card>
               </div>
@@ -137,16 +143,14 @@ export default async function ContactPage() {
               {/* Distinguish Contact vs Booking */}
               <div className="space-y-3 rounded-card border border-border bg-surface-muted p-6">
                 <h4 className="font-display text-lg font-semibold text-primary">
-                  Important: Inquiries vs. Appointments
+                  {t.contact.inquiriesVsAppointmentsTitle}
                 </h4>
                 <p className="text-xs leading-relaxed text-muted sm:text-sm">
-                  Sending a direct message via WhatsApp or email allows you to ask preliminary
-                  questions, but does not reserve an appointment on the schedule. To book a
-                  dedicated consultation slot, please use the online booking system.
+                  {t.contact.inquiriesVsAppointmentsDesc}
                 </p>
                 <div className="pt-2">
                   <LinkButton href="/book" variant="primary" size="sm">
-                    Request an Appointment Slot →
+                    {t.contact.requestSlotLink}
                   </LinkButton>
                 </div>
               </div>

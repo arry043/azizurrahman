@@ -3,17 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { LinkButton } from "@/components/ui/link-button";
-import { PRIMARY_NAV_ITEMS } from "@/config/navigation";
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 export function DesktopNavigation() {
   const pathname = usePathname();
+  const { t } = useTranslations();
+
+  const navItems = [
+    { label: t.navigation.home, href: "/" },
+    { label: t.navigation.about, href: "/about" },
+    { label: t.navigation.services, href: "/services" },
+    { label: t.navigation.contact, href: "/contact" },
+    { label: t.navigation.lookupShort, href: "/appointments/lookup" },
+  ];
 
   return (
-    <div className="hidden items-center gap-8 lg:flex">
-      <nav aria-label="Main Navigation" className="flex items-center gap-1.5 xl:gap-2">
-        {PRIMARY_NAV_ITEMS.map((item) => {
+    <div className="hidden items-center gap-6 lg:flex xl:gap-8">
+      <nav aria-label={t.navigation.mainNavLabel} className="flex items-center gap-1.5 xl:gap-2">
+        {navItems.map((item) => {
           const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
 
           return (
@@ -22,7 +32,7 @@ export function DesktopNavigation() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative rounded-md px-3.5 py-2 text-sm font-medium tracking-wide transition-colors",
+                "relative rounded-md px-3 py-2 text-sm font-medium tracking-wide transition-colors",
                 "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus",
                 isActive
                   ? "font-semibold text-accent"
@@ -33,7 +43,7 @@ export function DesktopNavigation() {
               {isActive && (
                 <span
                   aria-hidden="true"
-                  className="absolute inset-x-3.5 -bottom-2 h-0.5 rounded-full bg-accent"
+                  className="absolute inset-x-3 -bottom-2 h-0.5 rounded-full bg-accent"
                 />
               )}
             </Link>
@@ -42,8 +52,9 @@ export function DesktopNavigation() {
       </nav>
 
       <div className="flex items-center gap-3">
+        <LanguageSwitcher variant="header" />
         <LinkButton href="/book" variant="primary" size="md">
-          Book Appointment
+          {t.common.bookAppointment}
         </LinkButton>
       </div>
     </div>
