@@ -28,7 +28,7 @@ export async function PublicFooter() {
   ];
 
   return (
-    <footer className="border-t border-border bg-surface-muted text-foreground">
+    <footer className="site-footer border-t border-border bg-surface-muted text-foreground print:hidden">
       <div className="container-page py-12 sm:py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand & Scholar Identity Column */}

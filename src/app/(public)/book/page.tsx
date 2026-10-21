@@ -106,7 +106,11 @@ export default async function BookAppointmentPage({ searchParams }: BookPageProp
   return (
     <>
       {/* Header */}
-      <PageSection background="inverse" padding="md" className="border-b border-accent/30">
+      <PageSection
+        background="inverse"
+        padding="md"
+        className="border-b border-accent/30 print:hidden"
+      >
         <PageContainer>
           <Breadcrumbs
             homeLabel={t.navigation.home}
@@ -131,7 +135,7 @@ export default async function BookAppointmentPage({ searchParams }: BookPageProp
       <PageSection background="default" padding="lg">
         <PageContainer>
           {/* Booking Process Steps */}
-          <div className="mb-14">
+          <div className="mb-14 print:hidden">
             <h3 className="mb-8 text-center font-display text-2xl font-semibold text-primary">
               {isUr
                 ? "مشاورت کا وقت حاصل کرنے کا مرحلہ وار طریقہ کار"
@@ -210,7 +214,7 @@ export default async function BookAppointmentPage({ searchParams }: BookPageProp
           </div>
 
           {/* Engine Engineering Notice & Interim Direct Contact */}
-          <div className="mx-auto max-w-3xl space-y-8">
+          <div className="mx-auto max-w-3xl space-y-8 print:hidden">
             <Alert
               variant="info"
               title={

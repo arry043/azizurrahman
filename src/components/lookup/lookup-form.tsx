@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { LinkButton } from "@/components/ui/link-button";
+import { Ornament } from "@/components/ui/ornament";
+import { BrandMark } from "@/components/layout/brand-mark";
 import { scholarProfile } from "@/config/scholar-profile";
 import { useTranslations } from "@/i18n/client";
 import type { PublicAppointmentReceipt } from "@/types/domain";
@@ -171,8 +173,18 @@ export function LookupForm() {
             : verifiedReceipt.status;
 
     return (
-      <Card variant="elevated" className="space-y-6 p-6 text-start sm:p-8">
-        <div>
+      <Card
+        variant="elevated"
+        className="appointment-receipt-print space-y-6 p-6 text-start sm:p-8 print:space-y-4 print:p-5"
+      >
+        {/* Print-Only Official Brand Header */}
+        <div className="hidden flex-col items-center border-b border-border/80 pb-4 text-center print:flex">
+          <BrandMark />
+          <p className="mt-2 text-xs font-medium text-muted">{t.receipt.subtitle}</p>
+          <Ornament className="mt-2 justify-center" />
+        </div>
+
+        <div className="print:hidden">
           <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-emerald uppercase">
             <CheckIcon className="size-4" />
             <span>{t.lookup.identityVerified}</span>
@@ -181,34 +193,37 @@ export function LookupForm() {
           <p className="mt-1 text-xs text-muted sm:text-sm">{t.lookup.detailsSubtitle}</p>
         </div>
 
-        <div className="rounded-control border-2 border-accent/60 bg-cream/50 p-4 text-center">
+        <div className="rounded-control border-2 border-accent/60 bg-cream/50 p-4 text-center print:my-3 print:border print:bg-cream/40 print:p-3">
           <span className="text-xs font-semibold tracking-wider text-accent-strong uppercase">
             {t.lookup.referenceHeading}
           </span>
-          <p className="font-mono text-2xl font-bold tracking-wider text-primary" dir="ltr">
+          <p
+            className="font-mono text-2xl font-bold tracking-wider text-primary print:text-2xl"
+            dir="ltr"
+          >
             <bdi>{verifiedReceipt.public_reference}</bdi>
           </p>
         </div>
 
-        <div className="space-y-3 rounded-control border border-border bg-surface-muted/30 p-5 text-sm">
-          <div className="flex justify-between border-b border-border/60 pb-2">
+        <div className="space-y-3 rounded-control border border-border bg-surface-muted/30 p-5 text-sm print:space-y-2 print:p-4">
+          <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
             <span className="text-muted">{t.lookup.currentStatus}</span>
             <Badge variant={isConfirmed ? "success" : isPending ? "warning" : "neutral"} size="sm">
               {statusBadgeLabel}
             </Badge>
           </div>
 
-          <div className="flex justify-between border-b border-border/60 pb-2">
+          <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
             <span className="text-muted">{t.booking.receiptApplicantLabel}</span>
             <span className="font-medium text-foreground">{verifiedReceipt.customer_name}</span>
           </div>
 
-          <div className="flex justify-between border-b border-border/60 pb-2">
+          <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
             <span className="text-muted">{t.lookup.scheduledDate}</span>
             <span className="font-medium text-foreground">{formattedDate}</span>
           </div>
 
-          <div className="flex justify-between border-b border-border/60 pb-2">
+          <div className="flex justify-between border-b border-border/60 pb-2 print:pb-1.5">
             <span className="text-muted">{t.lookup.consultationTime}</span>
             <span className="font-medium text-foreground">
               <bdi dir="ltr">{startTimeFormatted}</bdi> – <bdi dir="ltr">{endTimeFormatted}</bdi> (
@@ -216,9 +231,9 @@ export function LookupForm() {
             </span>
           </div>
 
-          <div className="pt-1">
+          <div className="pt-1 text-start">
             <span className="text-muted">{t.lookup.requestedServices}</span>
-            <ul className="mt-1 list-inside list-disc space-y-1 text-foreground">
+            <ul className="mt-1 list-inside list-disc space-y-1 text-foreground print:mt-0.5 print:space-y-0.5">
               {verifiedReceipt.services.map((srv, idx) => (
                 <li key={idx}>
                   {srv.service_name_snapshot} ({srv.duration_minutes_snapshot} {t.common.minutes})
@@ -228,7 +243,38 @@ export function LookupForm() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+        {/* Status Information Box */}
+        <div className="space-y-2 text-start">
+          {isPending && (
+            <Alert
+              variant="warning"
+              title={t.receipt.pendingAlertTitle}
+              className="print:my-2 print:p-3"
+            >
+              {t.receipt.pendingAlertDesc}
+            </Alert>
+          )}
+
+          {isConfirmed && (
+            <Alert
+              variant="success"
+              title={t.receipt.confirmedAlertTitle}
+              className="print:my-2 print:p-3"
+            >
+              {t.receipt.confirmedAlertDesc}
+            </Alert>
+          )}
+
+          <p className="text-[11px] leading-relaxed text-muted italic">{t.receipt.noticePrinted}</p>
+          <p className="hidden text-[10px] leading-relaxed text-muted print:block">
+            {isUr ? "رہنمائی یا استفسار کے لیے:" : "For assistance or inquiries:"}{" "}
+            <span dir="ltr">
+              <bdi>{scholarProfile.contact.email}</bdi>
+            </span>
+          </p>
+        </div>
+
+        <div className="receipt-no-print flex flex-wrap items-center justify-between gap-3 pt-2 print:hidden">
           <LinkButton
             href={`/appointments/${verifiedReceipt.public_reference}`}
             variant="primary"

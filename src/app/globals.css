@@ -224,3 +224,90 @@
     }
   }
 }
+
+/* Print Stylesheet for Appointment Receipts --------------------------------------------------- */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Global hide of all chrome, navigation, headers, footers and screen-only controls */
+  header,
+  footer,
+  nav,
+  aside,
+  .site-header,
+  .site-footer,
+  .print\:hidden,
+  .print-hidden,
+  .receipt-no-print,
+  [data-no-print],
+  a[href="#main-content"] {
+    display: none !important;
+  }
+
+  /* Neutralize all outer layout wrappers so they don't add white space, padding or breaks */
+  main,
+  #main-content,
+  section,
+  article,
+  .container-page,
+  .container-wide,
+  .container-prose {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Appointment Receipt Container */
+  .appointment-receipt-print {
+    display: block !important;
+    width: 100% !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+    padding: 20px 24px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ensure colors, borders and background fills print crisp */
+  .appointment-receipt-print * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Keep table rows and alert blocks intact without page breaks */
+  .appointment-receipt-print .rounded-control,
+  .appointment-receipt-print [role="alert"],
+  .appointment-receipt-print [role="status"] {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Prevent links from rendering url expansions or unwanted underlines in print */
+  a[href]::after {
+    content: "" !important;
+  }
+}
