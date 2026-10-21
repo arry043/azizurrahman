@@ -9,6 +9,7 @@ const SERVER_ONLY_MODULES = [
   "@/lib/supabase/public",
   "@/lib/supabase/service-role",
   "@/lib/logger",
+  "@/lib/rate-limit",
 ];
 const SECRET_VARIABLES = [
   "SUPABASE_SERVICE_ROLE_KEY",

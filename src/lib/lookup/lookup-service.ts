@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHash, randomBytes } from "crypto";
 
-import { getAppointmentLookupSecret, getResendApiKey } from "@/lib/env/server";
+import { getAppointmentLookupSecret } from "@/lib/env/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { normalizeEmail, normalizePhone } from "@/lib/validation/contact";
 import type { PublicAppointmentReceipt } from "@/types/domain";
@@ -97,8 +97,6 @@ export async function initiateAppointmentLookup(
 
   const { data: appointment, error } = await query.maybeSingle();
 
-  // Check if an email provider (Resend) is configured
-  const resendApiKey = getResendApiKey();
   const isEmail = Boolean(normalizedEmail);
 
   // If appointment does not match, return a generic message to prevent enumeration
@@ -111,16 +109,16 @@ export async function initiateAppointmentLookup(
   }
 
   // If no external provider is configured for production delivery:
-  // We document that live delivery requires provider approval (OPEN_QUESTIONS Q16 & Q17).
+  // Live SMS/WhatsApp OTP dispatch is awaiting client provider selection (OPEN_QUESTIONS Q18 & Q20).
   const isProduction = process.env.NODE_ENV === "production";
-  const hasProvider = isEmail ? Boolean(resendApiKey) : false; // SMS provider pending client approval
+  const hasProvider = false; // Live OTP provider pending client approval & credentials
 
   if (isProduction && !hasProvider) {
     return {
       success: false,
       providerPending: true,
       message:
-        "Direct online self-service lookup requires an approved SMS/WhatsApp OTP provider, which is currently awaiting client credentials. Please contact our direct consultation line with your reference code for immediate status confirmation.",
+        "Online self-service verification via SMS/WhatsApp OTP is currently disabled pending live provider integration (awaiting client credentials). Please contact our direct consultation line with your reference code for immediate status confirmation.",
     };
   }
 

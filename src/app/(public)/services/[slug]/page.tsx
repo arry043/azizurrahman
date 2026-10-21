@@ -39,6 +39,16 @@ export async function generateMetadata({ params }: ServiceDetailPageProps): Prom
     description:
       service.short_description ||
       `Consultation details for ${service.name} with ${siteConfig.name}.`,
+    alternates: {
+      canonical: `/services/${service.slug}`,
+    },
+    openGraph: {
+      title: `${service.name} · ${siteConfig.name}`,
+      description:
+        service.short_description ||
+        `Consultation details for ${service.name} with ${siteConfig.name}.`,
+      url: `/services/${service.slug}`,
+    },
   };
 }
 

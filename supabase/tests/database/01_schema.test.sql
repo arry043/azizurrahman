@@ -11,7 +11,8 @@ select tables_are(
     'admin_profiles', 'services', 'weekly_availability', 'weekly_availability_intervals',
     'date_overrides', 'date_override_intervals', 'site_settings',
     'appointments', 'appointment_services', 'appointment_events',
-    'booking_idempotency_keys', 'appointment_verifications'
+    'booking_idempotency_keys', 'appointment_verifications', 'notification_logs',
+    'rate_limits'
   ],
   'public schema contains exactly the planned tables'
 );

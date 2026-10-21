@@ -17,9 +17,18 @@ import { siteConfig } from "@/config/site";
 import { getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
-  title: `About ${scholarProfile.identity.fullNameEn} | ${siteConfig.name}`,
+  title: `About ${scholarProfile.identity.fullNameEn}`,
   description:
     "Learn about Maulvi Azizurrahman (Aamil), offering dedicated Islamic spiritual guidance, consultation, and prayer grounded in the Qur'an and Sunnah.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: `About ${scholarProfile.identity.fullNameEn} · ${siteConfig.name}`,
+    description:
+      "Learn about Maulvi Azizurrahman (Aamil), offering dedicated Islamic spiritual guidance, consultation, and prayer grounded in the Qur'an and Sunnah.",
+    url: "/about",
+  },
 };
 
 export const instant = false;
