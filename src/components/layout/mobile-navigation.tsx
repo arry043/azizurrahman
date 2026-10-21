@@ -6,9 +6,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { BrandMark } from "@/components/layout/brand-mark";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
-import { PUBLIC_NAV_ITEMS } from "@/config/navigation";
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 const emptySubscribe = () => () => {};
@@ -24,6 +25,16 @@ export function MobileNavigation() {
   const [prevPathname, setPrevPathname] = useState(pathname);
   const drawerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const { t, dir } = useTranslations();
+
+  const navItems = [
+    { label: t.navigation.home, href: "/" },
+    { label: t.navigation.about, href: "/about" },
+    { label: t.navigation.services, href: "/services" },
+    { label: t.navigation.book, href: "/book" },
+    { label: t.navigation.contact, href: "/contact" },
+    { label: t.navigation.lookup, href: "/appointments/lookup" },
+  ];
 
   // Close drawer when pathname changes
   if (prevPathname !== pathname) {
@@ -95,8 +106,8 @@ export function MobileNavigation() {
         onClick={() => setIsOpen(true)}
         aria-expanded={isOpen}
         aria-controls="mobile-navigation-drawer"
-        aria-label="Open navigation menu"
-        className="flex min-h-11 min-w-11 items-center justify-center rounded-control border border-border/40 p-2 text-ivory hover:bg-white/10 focus-visible:outline-3 focus-visible:outline-focus"
+        aria-label={t.navigation.openMenu}
+        className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-control border border-border/40 p-2 text-ivory hover:bg-white/10 focus-visible:outline-3 focus-visible:outline-focus"
       >
         <MenuIcon className="size-6" />
       </button>
@@ -109,8 +120,9 @@ export function MobileNavigation() {
             id="mobile-navigation-drawer"
             role="dialog"
             aria-modal="true"
-            aria-label="Mobile navigation"
-            className="fixed inset-0 z-50 flex justify-end"
+            aria-label={t.navigation.mobileNavLabel}
+            dir={dir}
+            className="fixed inset-0 z-50 flex justify-end rtl:justify-start"
           >
             {/* Backdrop */}
             <div
@@ -124,26 +136,30 @@ export function MobileNavigation() {
               ref={drawerRef}
               tabIndex={-1}
               className={cn(
-                "relative z-10 flex h-full w-full max-w-xs flex-col overflow-y-auto border-l border-accent/30 bg-surface-inverse p-6 text-foreground-inverse shadow-modal focus:outline-none sm:max-w-sm",
+                "relative z-10 flex h-full w-full max-w-xs flex-col overflow-y-auto border-accent/30 bg-surface-inverse p-6 text-foreground-inverse shadow-modal focus:outline-none sm:max-w-sm",
+                "border-l rtl:border-r rtl:border-l-0",
               )}
             >
               {/* Drawer Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-6">
+              <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-6">
                 <BrandMark inverse />
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  aria-label="Close navigation menu"
-                  className="flex size-10 items-center justify-center rounded-md p-2 text-ivory/80 hover:bg-white/10 hover:text-white focus-visible:outline-3 focus-visible:outline-focus"
-                >
-                  <CloseIcon className="size-6" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <LanguageSwitcher variant="header" />
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    aria-label={t.navigation.closeMenu}
+                    className="flex size-10 cursor-pointer items-center justify-center rounded-md p-2 text-ivory/80 hover:bg-white/10 hover:text-white focus-visible:outline-3 focus-visible:outline-focus"
+                  >
+                    <CloseIcon className="size-6" />
+                  </button>
+                </div>
               </div>
 
               {/* Navigation links */}
-              <nav aria-label="Mobile Navigation" className="flex-1 py-6">
+              <nav aria-label={t.navigation.mobileNavLabel} className="flex-1 py-6">
                 <ul className="space-y-1">
-                  {PUBLIC_NAV_ITEMS.map((item) => {
+                  {navItems.map((item) => {
                     const isActive =
                       item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
 
@@ -178,11 +194,9 @@ export function MobileNavigation() {
                   className="w-full text-center"
                   onClick={() => setIsOpen(false)}
                 >
-                  Book Appointment
+                  {t.common.bookAppointment}
                 </LinkButton>
-                <p className="text-center text-xs text-ivory/60">
-                  Spiritual consultation by appointment
-                </p>
+                <p className="text-center text-xs text-ivory/60">{t.navigation.drawerSubtitle}</p>
               </div>
             </div>
           </div>,

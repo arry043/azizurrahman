@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SparklesIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { getServerTranslations } from "@/i18n/server";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
@@ -29,7 +30,8 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function ServicesPage() {
-  const [services, siteSettings] = await Promise.all([
+  const [{ t }, services, siteSettings] = await Promise.all([
+    getServerTranslations(),
     getActiveServices(),
     getPublicSiteSettings(),
   ]);
@@ -39,11 +41,15 @@ export default async function ServicesPage() {
       {/* Header */}
       <PageSection background="inverse" padding="md" className="border-b border-accent/30">
         <PageContainer>
-          <Breadcrumbs items={[{ label: "Services" }]} className="mb-4 text-ivory/70" />
+          <Breadcrumbs
+            homeLabel={t.navigation.home}
+            items={[{ label: t.navigation.services }]}
+            className="mb-4 text-ivory/70"
+          />
           <SectionHeading
-            kicker="Consultation Catalogue"
-            title="Our Spiritual Services"
-            description="Dedicated, personalized guidance grounded in Islamic ethics. Select a service to learn more or request a consultation slot."
+            kicker={t.services.kicker}
+            title={t.services.title}
+            description={t.services.description}
             inverse
             align="center"
           />
@@ -58,11 +64,11 @@ export default async function ServicesPage() {
           ) : (
             <EmptyState
               icon={<SparklesIcon className="size-6 text-accent-strong" />}
-              title="No services currently listed"
-              description="The service catalogue is being updated with approved descriptions. Please check back shortly or get in touch directly."
+              title={t.services.emptyTitle}
+              description={t.services.emptyDescription}
               action={
                 <LinkButton href="/contact" variant="primary" size="md">
-                  Contact Us
+                  {t.common.contactUs}
                 </LinkButton>
               }
             />

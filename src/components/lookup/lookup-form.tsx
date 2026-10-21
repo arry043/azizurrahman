@@ -19,9 +19,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { LinkButton } from "@/components/ui/link-button";
 import { scholarProfile } from "@/config/scholar-profile";
+import { useTranslations } from "@/i18n/client";
 import type { PublicAppointmentReceipt } from "@/types/domain";
 
 export function LookupForm() {
+  const { t, locale } = useTranslations();
+  const isUr = locale === "ur";
+
   const [reference, setReference] = useState("");
   const [contact, setContact] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -41,7 +45,7 @@ export function LookupForm() {
   async function handleInitiate(e: FormEvent) {
     e.preventDefault();
     if (!reference.trim() || !contact.trim()) {
-      setErrorMessage("Please enter both your reference code and contact details.");
+      setErrorMessage(t.lookup.errorEmptyInputs);
       return;
     }
 
@@ -63,7 +67,7 @@ export function LookupForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to initiate verification challenge");
+        throw new Error(data.error || t.lookup.errorFailedInitiate);
       }
 
       if (data.providerPending) {
@@ -78,11 +82,7 @@ export function LookupForm() {
       setStatusNotice(data.message);
       setStep("challenge");
     } catch (err) {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : "An unexpected error occurred while initiating lookup.",
-      );
+      setErrorMessage(err instanceof Error ? err.message : t.lookup.errorFailedInitiate);
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ export function LookupForm() {
   async function handleVerify(e: FormEvent) {
     e.preventDefault();
     if (!verificationCode.trim()) {
-      setErrorMessage("Please enter the verification code.");
+      setErrorMessage(t.lookup.errorEmptyToken);
       return;
     }
 
@@ -112,17 +112,13 @@ export function LookupForm() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Incorrect or expired verification code.");
+        throw new Error(data.error || t.lookup.errorInvalidCode);
       }
 
       setVerifiedReceipt(data.receipt);
       setStep("verified");
     } catch (err) {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : "Verification failed. Please check your code and try again.",
-      );
+      setErrorMessage(err instanceof Error ? err.message : t.lookup.errorInvalidCode);
     } finally {
       setLoading(false);
     }
@@ -132,83 +128,100 @@ export function LookupForm() {
   if (step === "verified" && verifiedReceipt) {
     const isPending = verifiedReceipt.status === "pending";
     const isConfirmed = verifiedReceipt.status === "confirmed";
+    const isCancelled = verifiedReceipt.status === "cancelled";
+    const isDeclined = verifiedReceipt.status === "declined";
+
+    const formattedDate = new Date(verifiedReceipt.appointment_start).toLocaleDateString(
+      isUr ? "ur-PK" : "en-US",
+      {
+        timeZone: verifiedReceipt.timezone,
+        weekday: "short",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    );
+
+    const startTimeFormatted = new Date(verifiedReceipt.appointment_start).toLocaleTimeString(
+      isUr ? "ur-PK" : "en-US",
+      {
+        timeZone: verifiedReceipt.timezone,
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    );
+
+    const endTimeFormatted = new Date(verifiedReceipt.appointment_end).toLocaleTimeString(
+      isUr ? "ur-PK" : "en-US",
+      {
+        timeZone: verifiedReceipt.timezone,
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    );
+
+    const statusBadgeLabel = isConfirmed
+      ? t.lookup.statusConfirmed
+      : isPending
+        ? t.lookup.statusPending
+        : isCancelled
+          ? t.lookup.statusCancelled
+          : isDeclined
+            ? t.lookup.statusDeclined
+            : verifiedReceipt.status;
 
     return (
-      <Card variant="elevated" className="space-y-6 p-6 sm:p-8">
+      <Card variant="elevated" className="space-y-6 p-6 text-start sm:p-8">
         <div>
           <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-emerald uppercase">
             <CheckIcon className="size-4" />
-            <span>Identity Verified</span>
+            <span>{t.lookup.identityVerified}</span>
           </div>
-          <CardTitle className="text-2xl">Consultation Request Details</CardTitle>
-          <p className="mt-1 text-xs text-muted sm:text-sm">
-            Retrieved securely via two-factor verification.
-          </p>
+          <CardTitle className="text-2xl">{t.lookup.detailsTitle}</CardTitle>
+          <p className="mt-1 text-xs text-muted sm:text-sm">{t.lookup.detailsSubtitle}</p>
         </div>
 
         <div className="rounded-control border-2 border-accent/60 bg-cream/50 p-4 text-center">
           <span className="text-xs font-semibold tracking-wider text-accent-strong uppercase">
-            Appointment Reference
+            {t.lookup.referenceHeading}
           </span>
-          <p className="font-mono text-2xl font-bold tracking-wider text-primary">
-            {verifiedReceipt.public_reference}
+          <p className="font-mono text-2xl font-bold tracking-wider text-primary" dir="ltr">
+            <bdi>{verifiedReceipt.public_reference}</bdi>
           </p>
         </div>
 
         <div className="space-y-3 rounded-control border border-border bg-surface-muted/30 p-5 text-sm">
           <div className="flex justify-between border-b border-border/60 pb-2">
-            <span className="text-muted">Current Status:</span>
+            <span className="text-muted">{t.lookup.currentStatus}</span>
             <Badge variant={isConfirmed ? "success" : isPending ? "warning" : "neutral"} size="sm">
-              {isConfirmed
-                ? "Appointment Confirmed"
-                : isPending
-                  ? "Pending Provider Review"
-                  : verifiedReceipt.status}
+              {statusBadgeLabel}
             </Badge>
           </div>
 
           <div className="flex justify-between border-b border-border/60 pb-2">
-            <span className="text-muted">Applicant Name:</span>
+            <span className="text-muted">{t.booking.receiptApplicantLabel}</span>
             <span className="font-medium text-foreground">{verifiedReceipt.customer_name}</span>
           </div>
 
           <div className="flex justify-between border-b border-border/60 pb-2">
-            <span className="text-muted">Scheduled Date:</span>
-            <span className="font-medium text-foreground">
-              {new Date(verifiedReceipt.appointment_start).toLocaleDateString("en-US", {
-                timeZone: verifiedReceipt.timezone,
-                weekday: "short",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
+            <span className="text-muted">{t.lookup.scheduledDate}</span>
+            <span className="font-medium text-foreground">{formattedDate}</span>
           </div>
 
           <div className="flex justify-between border-b border-border/60 pb-2">
-            <span className="text-muted">Consultation Time:</span>
+            <span className="text-muted">{t.lookup.consultationTime}</span>
             <span className="font-medium text-foreground">
-              {new Date(verifiedReceipt.appointment_start).toLocaleTimeString("en-US", {
-                timeZone: verifiedReceipt.timezone,
-                hour: "2-digit",
-                minute: "2-digit",
-              })}{" "}
-              –{" "}
-              {new Date(verifiedReceipt.appointment_end).toLocaleTimeString("en-US", {
-                timeZone: verifiedReceipt.timezone,
-                hour: "2-digit",
-                minute: "2-digit",
-              })}{" "}
-              ({verifiedReceipt.timezone})
+              <bdi dir="ltr">{startTimeFormatted}</bdi> – <bdi dir="ltr">{endTimeFormatted}</bdi> (
+              {verifiedReceipt.timezone})
             </span>
           </div>
 
           <div className="pt-1">
-            <span className="text-muted">Requested Services:</span>
+            <span className="text-muted">{t.lookup.requestedServices}</span>
             <ul className="mt-1 list-inside list-disc space-y-1 text-foreground">
               {verifiedReceipt.services.map((srv, idx) => (
                 <li key={idx}>
-                  {srv.service_name_snapshot} ({srv.duration_minutes_snapshot} mins)
+                  {srv.service_name_snapshot} ({srv.duration_minutes_snapshot} {t.common.minutes})
                 </li>
               ))}
             </ul>
@@ -221,7 +234,7 @@ export function LookupForm() {
             variant="primary"
             size="md"
           >
-            Open Dedicated Receipt
+            {t.lookup.openDedicatedReceipt}
           </LinkButton>
           <Button
             variant="outline"
@@ -229,7 +242,7 @@ export function LookupForm() {
             onClick={() => window.print()}
             leftIcon={<PrinterIcon className="size-4" />}
           >
-            Print
+            {t.common.print}
           </Button>
           <Button
             variant="ghost"
@@ -240,7 +253,7 @@ export function LookupForm() {
               setVerificationCode("");
             }}
           >
-            Lookup Another
+            {t.lookup.lookupAnother}
           </Button>
         </div>
       </Card>
@@ -250,30 +263,28 @@ export function LookupForm() {
   // ── Step 2: Verification Challenge Form ──────────────────────────────────────────────────
   if (step === "challenge") {
     return (
-      <Card variant="elevated" className="space-y-6 p-6 sm:p-8">
+      <Card variant="elevated" className="space-y-6 p-6 text-start sm:p-8">
         <div>
           <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-accent-strong uppercase">
             <LockIcon className="size-4" />
-            <span>Step 2: Enter Verification Code</span>
+            <span>{t.lookup.step2Kicker}</span>
           </div>
-          <CardTitle className="text-2xl">Confirm Your Identity</CardTitle>
-          <p className="mt-1 text-xs text-muted sm:text-sm">
-            Enter the 6-digit verification code sent to your contact channel.
-          </p>
+          <CardTitle className="text-2xl">{t.lookup.step2Title}</CardTitle>
+          <p className="mt-1 text-xs text-muted sm:text-sm">{t.lookup.step2Desc}</p>
         </div>
 
         {statusNotice && (
-          <Alert variant="info" title="Verification Dispatched">
+          <Alert variant="info" title={t.lookup.dispatchedTitle}>
             {statusNotice}
           </Alert>
         )}
 
         {devSimulatedCode && (
-          <Alert variant="warning" title="Development Test Code">
+          <Alert variant="warning" title={t.lookup.devCodeTitle}>
             <p className="text-xs">
-              Simulated verification code for testing:{" "}
-              <strong className="font-mono text-sm font-bold text-primary">
-                {devSimulatedCode}
+              {t.lookup.devCodeDescription}{" "}
+              <strong className="font-mono text-sm font-bold text-primary" dir="ltr">
+                <bdi>{devSimulatedCode}</bdi>
               </strong>
             </p>
           </Alert>
@@ -282,13 +293,14 @@ export function LookupForm() {
         <form onSubmit={handleVerify} className="space-y-4">
           <Input
             id="lookup-token"
-            label="6-Digit Verification Code"
+            label={t.lookup.tokenLabel}
             placeholder="123456"
             value={verificationCode}
             onChange={(e) => setVerificationCode(e.target.value)}
             required
             autoComplete="one-time-code"
-            hint="The code is valid for 15 minutes. Maximum 5 attempts allowed."
+            hint={t.lookup.tokenHint}
+            dir="ltr"
           />
 
           {errorMessage && (
@@ -307,10 +319,10 @@ export function LookupForm() {
                 setErrorMessage(null);
               }}
             >
-              ← Back
+              {isUr ? "واپس →" : "← Back"}
             </Button>
             <Button type="submit" variant="primary" size="lg" loading={loading} disabled={loading}>
-              {loading ? "Verifying..." : "Verify & View Appointment"}
+              {loading ? t.lookup.verifying : t.lookup.verifyAndView}
             </Button>
           </div>
         </form>
@@ -319,54 +331,55 @@ export function LookupForm() {
   }
 
   // ── Step 1: Initial Reference & Contact Form ─────────────────────────────────────────────
+  const waDefaultMessage = isUr
+    ? scholarProfile.contact.whatsapp.defaultMessageUr
+    : scholarProfile.contact.whatsapp.defaultMessageEn;
+
   return (
-    <Card variant="elevated" className="space-y-6 p-6 sm:p-8">
+    <Card variant="elevated" className="space-y-6 p-6 text-start sm:p-8">
       <div>
         <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-accent-strong uppercase">
           <ShieldCheckIcon className="size-4" />
-          <span>Secure Guest Verification</span>
+          <span>{t.lookup.kicker}</span>
         </div>
-        <CardTitle className="text-2xl">Appointment Verification</CardTitle>
-        <p className="mt-1 text-xs text-muted sm:text-sm">
-          Enter your reference code and the contact details provided at booking.
-        </p>
+        <CardTitle className="text-2xl">{t.lookup.title}</CardTitle>
+        <p className="mt-1 text-xs text-muted sm:text-sm">{t.lookup.description}</p>
 
         <div className="mt-3.5 rounded-control border border-accent/40 bg-cream/40 p-3 text-xs text-muted">
-          <p className="font-semibold text-primary">Self-Service Lookup Status</p>
-          <p className="mt-0.5 leading-relaxed">
-            Automated SMS/WhatsApp OTP dispatch is currently awaiting client credentials. In
-            production, appointment status can be confirmed directly with our consultation desk.
-          </p>
+          <p className="font-semibold text-primary">{t.lookup.selfServiceStatusTitle}</p>
+          <p className="mt-0.5 leading-relaxed">{t.lookup.selfServiceStatusNotice}</p>
         </div>
       </div>
 
       <form onSubmit={handleInitiate} className="space-y-4">
         <Input
           id="lookup-reference"
-          label="Appointment Reference Code"
-          placeholder="e.g. AZR-7K2QX-M9D4T"
+          label={t.lookup.referenceLabel}
+          placeholder={t.lookup.referencePlaceholder}
           value={reference}
           onChange={(e) => {
             setReference(e.target.value);
             setErrorMessage(null);
             setStatusNotice(null);
           }}
-          hint="Provided on your booking confirmation receipt"
+          hint={t.lookup.referenceHint}
           required
+          dir="ltr"
         />
 
         <Input
           id="lookup-contact"
-          label="Phone Number or Email Address"
-          placeholder="+91 98765 43210 or name@example.com"
+          label={t.lookup.contactLabel}
+          placeholder={t.lookup.contactPlaceholder}
           value={contact}
           onChange={(e) => {
             setContact(e.target.value);
             setErrorMessage(null);
             setStatusNotice(null);
           }}
-          hint="Must match the contact details submitted with your request"
+          hint={t.lookup.contactHint}
           required
+          dir="ltr"
         />
 
         {errorMessage && (
@@ -384,46 +397,43 @@ export function LookupForm() {
           disabled={loading}
           leftIcon={<SearchIcon className="size-4" />}
         >
-          {loading ? "Checking..." : "Verify & Retrieve Details"}
+          {loading ? t.lookup.checking : t.lookup.verifyAndRetrieve}
         </Button>
       </form>
 
       <div className="border-t border-border/70 pt-4 text-xs text-muted">
-        <p className="font-semibold text-primary">Privacy Guarantee</p>
-        <p className="mt-0.5 text-muted">
-          Your personal consultation notes and private records remain strictly confidential and are
-          never shown to unverified visitors.
-        </p>
+        <p className="font-semibold text-primary">{t.lookup.privacyGuaranteeTitle}</p>
+        <p className="mt-0.5 text-muted">{t.lookup.privacyGuaranteeNotice}</p>
       </div>
 
       {statusNotice && (
         <Alert
           variant="info"
-          title="Direct Consultation Line Assistance"
+          title={t.lookup.assistanceTitle}
           icon={<InfoIcon className="size-5 text-primary" />}
         >
           <p className="text-xs leading-relaxed text-muted sm:text-sm">{statusNotice}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <LinkButton href="/contact" variant="secondary" size="sm">
-              Contact Consultation Line
+              {t.lookup.contactDesk}
             </LinkButton>
             <a
               href={`tel:${scholarProfile.contact.phone.internationalCandidate}`}
               className="inline-flex items-center gap-1.5 rounded-control border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
               <PhoneIcon className="size-3.5 text-accent-strong" />
-              <span>Call Consultation Desk</span>
+              <span>{t.lookup.callDesk}</span>
             </a>
             <a
               href={`https://wa.me/${scholarProfile.contact.phone.internationalCandidate.replace(/\D/g, "")}?text=${encodeURIComponent(
-                scholarProfile.contact.whatsapp.defaultMessageEn,
+                waDefaultMessage,
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-800 dark:text-emerald-200 inline-flex items-center gap-1.5 rounded-control border border-emerald/40 bg-emerald/10 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-emerald/20 focus-visible:ring-2 focus-visible:ring-emerald focus-visible:outline-none"
             >
               <WhatsAppIcon className="size-3.5 text-emerald" />
-              <span>WhatsApp Consultation Desk</span>
+              <span>{t.lookup.whatsappDesk}</span>
             </a>
           </div>
         </Alert>

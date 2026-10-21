@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ContactCTA } from "@/components/contact/contact-cta";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageSection } from "@/components/layout/page-section";
+import { ScholarPortrait } from "@/components/scholar/scholar-portrait";
 import { ServiceGrid } from "@/components/services/service-grid";
 import { Card, CardTitle } from "@/components/ui/card";
 import {
@@ -17,9 +18,9 @@ import {
 import { LinkButton } from "@/components/ui/link-button";
 import { Ornament } from "@/components/ui/ornament";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { ScholarPortrait } from "@/components/scholar/scholar-portrait";
 import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
+import { getServerTranslations } from "@/i18n/server";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
@@ -40,10 +41,14 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function HomePage() {
-  const [services, siteSettings] = await Promise.all([
+  const [{ t, locale }, services, siteSettings] = await Promise.all([
+    getServerTranslations(),
     getActiveServices(),
     getPublicSiteSettings(),
   ]);
+
+  const isUr = locale === "ur";
+  const scholarBio = isUr ? scholarProfile.content.ur.shortBio : scholarProfile.content.en.shortBio;
 
   const featuredServices = services.slice(0, 3);
 
@@ -55,7 +60,7 @@ export default async function HomePage() {
         "@id": `${siteConfig.name}-website`,
         name: siteConfig.name,
         description: siteConfig.description,
-        inLanguage: siteConfig.locale,
+        inLanguage: locale,
       },
       {
         "@type": "Person",
@@ -97,38 +102,35 @@ export default async function HomePage() {
         {/* Ambient background glow & subtle Islamic pattern */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-40 right-0 size-[500px] rounded-full bg-accent/10 blur-3xl"
+          className="pointer-events-none absolute end-0 -top-40 size-[500px] rounded-full bg-accent/10 blur-3xl"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-32 left-0 size-[450px] rounded-full bg-primary-hover/20 blur-3xl"
+          className="pointer-events-none absolute start-0 -bottom-32 size-[450px] rounded-full bg-primary-hover/20 blur-3xl"
         />
 
         <PageContainer>
           <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
             {/* Text & CTAs Column */}
-            <div className="space-y-6 text-center lg:col-span-7 lg:text-left">
+            <div className="space-y-6 text-center lg:col-span-7 lg:text-start">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-white/5 px-3.5 py-1 text-xs font-medium tracking-wide text-accent sm:text-sm">
                 <SparklesIcon className="size-4" />
-                <span>Official Spiritual Guidance &amp; Consultation</span>
+                <span>{t.home.heroKicker}</span>
               </div>
 
-              <h1 className="font-display text-4xl leading-[1.1] font-semibold tracking-tight text-ivory sm:text-5xl lg:text-6xl">
-                Calm, Ethical &amp; Dedicated Islamic Guidance
+              <h1 className="font-display text-4xl leading-[1.15] font-semibold tracking-tight text-ivory sm:text-5xl lg:text-6xl">
+                {t.home.heroTitle}
               </h1>
 
               <Ornament className="lg:justify-start" />
 
               <p className="mx-auto max-w-xl text-base leading-relaxed text-ivory/85 sm:text-lg lg:mx-0">
-                Welcome to the official portal of {siteConfig.name} —{" "}
-                <span className="font-medium text-ivory">{scholarProfile.identity.fullNameEn}</span>
-                . Providing sincere spiritual consultation, Quranic reflection, and personalized
-                guidance within a confidential, dignified environment.
+                {t.home.heroIntro}
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start">
                 <LinkButton href="/book" variant="primary" size="lg">
-                  Book an Appointment
+                  {t.common.bookAnAppointment}
                 </LinkButton>
                 <LinkButton
                   href="/services"
@@ -136,13 +138,11 @@ export default async function HomePage() {
                   size="lg"
                   className="border-accent text-accent hover:bg-accent/10"
                 >
-                  Explore Services
+                  {t.common.exploreServices}
                 </LinkButton>
               </div>
 
-              <p className="pt-2 text-xs text-ivory/60">
-                Consultations are arranged in advance. No public account required to book.
-              </p>
+              <p className="pt-2 text-xs text-ivory/60">{t.home.heroAdvanceNotice}</p>
             </div>
 
             {/* Visual Emblem Column */}
@@ -174,9 +174,9 @@ export default async function HomePage() {
       <PageSection background="default" padding="lg">
         <PageContainer>
           <SectionHeading
-            kicker="Our Foundations"
-            title="Principles of Guidance"
-            description="Our consultations are structured around core ethical principles to support your spiritual well-being."
+            kicker={t.home.principlesKicker}
+            title={t.home.principlesTitle}
+            description={t.home.principlesDescription}
           />
 
           <div className="mt-12 grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3">
@@ -184,10 +184,9 @@ export default async function HomePage() {
               <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-emerald/10 text-emerald">
                 <ShieldCheckIcon className="size-6" />
               </div>
-              <CardTitle className="text-xl">Confidential &amp; Dignified</CardTitle>
+              <CardTitle className="text-xl">{t.home.principle1Title}</CardTitle>
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Every consultation is conducted in complete privacy. Your personal concerns, family
-                matters, and inquiries are held in strict confidence.
+                {t.home.principle1Description}
               </p>
             </Card>
 
@@ -195,10 +194,9 @@ export default async function HomePage() {
               <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-accent/15 text-accent-strong">
                 <UserIcon className="size-6" />
               </div>
-              <CardTitle className="text-xl">Personalized Attention</CardTitle>
+              <CardTitle className="text-xl">{t.home.principle2Title}</CardTitle>
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Dedicated time slots ensure unhurried, focused dialogue tailored to your unique
-                circumstances and spiritual questions.
+                {t.home.principle2Description}
               </p>
             </Card>
 
@@ -206,10 +204,9 @@ export default async function HomePage() {
               <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-emerald/10 text-emerald">
                 <CalendarIcon className="size-6" />
               </div>
-              <CardTitle className="text-xl">Structured Appointments</CardTitle>
+              <CardTitle className="text-xl">{t.home.principle3Title}</CardTitle>
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Transparent scheduling without queues or uncertainty. Easily request a date and time
-                that suits your personal routine.
+                {t.home.principle3Description}
               </p>
             </Card>
           </div>
@@ -222,14 +219,14 @@ export default async function HomePage() {
           <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-accent-strong uppercase sm:text-sm">
-                Consultation Catalogue
+                {t.home.servicesKicker}
               </p>
               <h2 className="font-display text-3xl font-semibold text-primary sm:text-4xl lg:text-5xl">
-                Featured Guidance Services
+                {t.home.servicesTitle}
               </h2>
             </div>
             <LinkButton href="/services" variant="secondary" size="md">
-              View All Services
+              {t.home.viewAllServices}
             </LinkButton>
           </div>
 
@@ -237,12 +234,10 @@ export default async function HomePage() {
             <ServiceGrid services={featuredServices} />
           ) : (
             <div className="rounded-card border border-border bg-surface p-8 text-center sm:p-12">
-              <p className="text-base text-muted">
-                Service catalogue is currently being prepared with approved descriptions.
-              </p>
+              <p className="text-base text-muted">{t.home.emptyServicesTitle}</p>
               <div className="mt-4">
                 <LinkButton href="/contact" variant="primary" size="md">
-                  Contact for Inquiries
+                  {t.home.emptyServicesContact}
                 </LinkButton>
               </div>
             </div>
@@ -254,35 +249,31 @@ export default async function HomePage() {
       <PageSection background="default" padding="lg" id="scholar-profile">
         <PageContainer>
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
-            {/* Scholar Portrait (Aesthetic Cutout with Moorish Arch) */}
+            {/* Scholar Portrait */}
             <div className="flex justify-center lg:col-span-5">
               <ScholarPortrait variant="compact" showActions={false} />
             </div>
 
             {/* Concise Scholar Introduction Content */}
-            <div className="space-y-5 lg:col-span-7">
+            <div className="space-y-5 text-start lg:col-span-7">
               <p className="text-xs font-semibold tracking-[0.2em] text-accent-strong uppercase sm:text-sm">
-                Scholar Profile &amp; Practice
+                {t.home.scholarKicker}
               </p>
               <h2 className="font-display text-3xl leading-tight font-semibold text-primary sm:text-4xl">
-                Dedicated to Sincere &amp; Ethical Islamic Guidance
+                {t.home.scholarHeading}
               </h2>
               <Ornament className="justify-start" />
               <p className="text-base leading-relaxed text-foreground/90 sm:text-lg">
-                {scholarProfile.content.en.shortBio}
+                {scholarBio}
               </p>
-              <p className="text-sm leading-relaxed text-muted">
-                Consultations are conducted in an atmosphere of respect and dignity, without
-                unsupported claims or false guarantees. In accordance with faith, healing and
-                outcomes are recognized as being solely in the hands of Allah (SWT).
-              </p>
+              <p className="text-sm leading-relaxed text-muted">{t.home.scholarDignity}</p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <LinkButton href="/book" variant="primary" size="md">
-                  Book an Appointment
+                  {t.common.bookAnAppointment}
                 </LinkButton>
                 <LinkButton href="/contact" variant="secondary" size="md">
-                  Contact / Inquiries
+                  {t.navigation.contact}
                 </LinkButton>
               </div>
 
@@ -291,8 +282,8 @@ export default async function HomePage() {
                   href="/about"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
                 >
-                  <span>Learn more about background, education &amp; consultation approach</span>
-                  <ChevronRightIcon className="size-4" />
+                  <span>{t.home.scholarLearnMore}</span>
+                  <ChevronRightIcon className="size-4 rtl:rotate-180" />
                 </Link>
               </div>
             </div>

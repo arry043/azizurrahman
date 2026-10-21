@@ -14,6 +14,7 @@ import { Ornament } from "@/components/ui/ornament";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
+import { getServerTranslations } from "@/i18n/server";
 import { getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
@@ -34,18 +35,48 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function AboutPage() {
-  const siteSettings = await getPublicSiteSettings();
+  const [{ t, locale }, siteSettings] = await Promise.all([
+    getServerTranslations(),
+    getPublicSiteSettings(),
+  ]);
+
+  const isUr = locale === "ur";
+  const scholarName = isUr
+    ? scholarProfile.identity.fullNameUr
+    : scholarProfile.identity.fullNameEn;
+  const aboutIntro = isUr
+    ? scholarProfile.content.ur.aboutIntro
+    : scholarProfile.content.en.aboutIntro;
+  const aboutParagraphs = isUr
+    ? scholarProfile.content.ur.aboutParagraphs
+    : scholarProfile.content.en.aboutParagraphs;
+  const approachParagraphs = isUr
+    ? [t.about.approachParagraph1, t.about.approachParagraph2]
+    : scholarProfile.content.en.approachParagraphs;
+  const concerns = isUr
+    ? scholarProfile.content.ur.concernsAddressed
+    : scholarProfile.content.en.concernsAddressed;
+  const faithPerspective = isUr
+    ? scholarProfile.content.ur.faithPerspective
+    : scholarProfile.content.en.faithPerspective;
+  const consultationNotice = isUr
+    ? t.about.processNotice
+    : scholarProfile.content.en.consultationNotice;
 
   return (
     <>
       {/* 1. Page Header */}
       <PageSection background="inverse" padding="md" className="border-b border-accent/30">
         <PageContainer>
-          <Breadcrumbs items={[{ label: "About" }]} className="mb-4 text-ivory/70" />
+          <Breadcrumbs
+            homeLabel={t.navigation.home}
+            items={[{ label: t.navigation.about }]}
+            className="mb-4 text-ivory/70"
+          />
           <SectionHeading
-            kicker="Scholar Biography &amp; Practice"
-            title={`About ${siteConfig.name}`}
-            description={`${scholarProfile.identity.fullNameEn} — ${scholarProfile.content.en.aboutIntro}`}
+            kicker={t.about.headerKicker}
+            title={t.about.headerTitle}
+            description={`${scholarName} — ${aboutIntro}`}
             inverse
             align="center"
           />
@@ -62,34 +93,34 @@ export default async function AboutPage() {
             </div>
 
             {/* Right: Open Editorial Biography & Guidance Philosophy */}
-            <div className="space-y-8 lg:col-span-7">
+            <div className="space-y-8 text-start lg:col-span-7">
               {/* About Maulvi Azizurrahman */}
               <div className="space-y-4">
                 <p className="text-xs font-semibold tracking-[0.2em] text-accent-strong uppercase sm:text-sm">
-                  Biography &amp; Foundations
+                  {t.about.bioKicker}
                 </p>
                 <h2 className="font-display text-3xl leading-tight font-semibold text-primary sm:text-4xl">
-                  About {scholarProfile.identity.fullNameEn}
+                  {t.about.bioHeading}
                 </h2>
                 <Ornament className="justify-start" />
 
-                {scholarProfile.content.en.aboutParagraphs.map((para, idx) => (
+                {aboutParagraphs.map((para, idx) => (
                   <p key={idx} className="text-base leading-relaxed text-foreground/90 sm:text-lg">
                     {para}
                   </p>
                 ))}
               </div>
 
-              {/* Approach to Spiritual Guidance (Clean Editorial Treatment) */}
+              {/* Approach to Spiritual Guidance */}
               <div className="space-y-4 pt-2">
                 <div className="border-t border-border/60 pt-6">
                   <h3 className="font-display text-2xl font-semibold text-primary">
-                    {scholarProfile.content.en.approachHeading}
+                    {t.about.approachHeading}
                   </h3>
                   <Ornament className="justify-start" />
                 </div>
 
-                {scholarProfile.content.en.approachParagraphs.map((para, idx) => (
+                {approachParagraphs.map((para, idx) => (
                   <p key={idx} className="text-sm leading-relaxed text-muted sm:text-base">
                     {para}
                   </p>
@@ -97,10 +128,10 @@ export default async function AboutPage() {
 
                 <div className="pt-2">
                   <p className="text-xs font-semibold tracking-wider text-primary uppercase">
-                    Areas of Consultation
+                    {t.about.concernsHeading}
                   </p>
                   <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-                    {scholarProfile.content.en.concernsAddressed.map((item, idx) => (
+                    {concerns.map((item, idx) => (
                       <li
                         key={idx}
                         className="flex items-start gap-2.5 rounded-xl border border-border/80 bg-white/70 p-3.5 text-xs font-medium text-foreground shadow-subtle sm:text-sm"
@@ -113,44 +144,38 @@ export default async function AboutPage() {
                 </div>
               </div>
 
-              {/* Faith, Perspective & Healing Statement (Refined Pull-Quote Style) */}
-              <div className="rounded-r-xl border-l-3 border-accent bg-cream/35 p-6 shadow-subtle">
+              {/* Faith, Perspective & Healing Statement */}
+              <div className="rounded-r-xl border-l-3 border-accent bg-cream/35 p-6 shadow-subtle rtl:rounded-l-xl rtl:rounded-r-none rtl:border-r-3 rtl:border-l-0">
                 <h4 className="font-display text-lg font-semibold text-primary">
-                  Faith &amp; Healing Perspective
+                  {t.about.faithHeading}
                 </h4>
                 <p className="mt-2 text-sm leading-relaxed text-foreground/85 italic sm:text-base">
-                  &ldquo;{scholarProfile.content.en.faithPerspective}&rdquo;
+                  &ldquo;{faithPerspective}&rdquo;
                 </p>
               </div>
 
               {/* Official Profile Verification Note */}
-              <Alert variant="info" title="Official Profile Verification">
-                All biographical statements, educational details, and consultation areas presented
-                here are drawn directly from official client-provided information. In adherence to
-                strict transparency, no unverified academic titles, fabricated certifications, or
-                miraculous claims are published on this portal.
+              <Alert variant="info" title={t.about.verificationNoticeTitle}>
+                {t.about.verificationNoticeBody}
               </Alert>
 
               {/* Ethical Consultation Principles */}
               <div className="space-y-4 pt-2">
                 <h4 className="font-display text-xl font-semibold text-primary">
-                  Our Consultation Philosophy
+                  {t.about.philosophyHeading}
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Card variant="muted" className="p-5">
-                    <CardTitle className="text-lg">No False Guarantees</CardTitle>
+                  <Card variant="muted" className="p-5 text-start">
+                    <CardTitle className="text-lg">{t.about.noGuaranteesTitle}</CardTitle>
                     <p className="mt-2 text-xs leading-relaxed text-muted sm:text-sm">
-                      We strictly reject commercialized supernatural claims or guaranteed cures.
-                      Guidance is advisory, spiritual, and grounded in authentic faith and
-                      supplication.
+                      {t.about.noGuaranteesDesc}
                     </p>
                   </Card>
 
-                  <Card variant="muted" className="p-5">
-                    <CardTitle className="text-lg">Dignity &amp; Compassion</CardTitle>
+                  <Card variant="muted" className="p-5 text-start">
+                    <CardTitle className="text-lg">{t.about.dignityTitle}</CardTitle>
                     <p className="mt-2 text-xs leading-relaxed text-muted sm:text-sm">
-                      Every seeker is welcomed without judgment, irrespective of background,
-                      ensuring a respectful, supportive, and serene setting.
+                      {t.about.dignityDesc}
                     </p>
                   </Card>
                 </div>
@@ -160,22 +185,20 @@ export default async function AboutPage() {
               <div className="space-y-3 rounded-xl border border-border/80 bg-surface/80 p-6 shadow-subtle">
                 <div className="flex items-center gap-2 text-primary">
                   <CalendarIcon className="size-5 text-accent-strong" />
-                  <h4 className="font-display text-lg font-semibold">The Consultation Process</h4>
+                  <h4 className="font-display text-lg font-semibold">{t.about.processHeading}</h4>
                 </div>
                 <p className="text-xs leading-relaxed text-muted sm:text-sm">
-                  {scholarProfile.content.en.consultationNotice} Requesting an appointment online
-                  submits a consultation request with your selected service and provisional time.
-                  Once verified against availability, a confirmation notice is issued.
+                  {consultationNotice} {t.about.processDesc}
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <LinkButton href="/book" variant="primary" size="sm">
-                    Book an Appointment Slot →
+                    {t.common.bookAppointment}
                   </LinkButton>
                   <Link
                     href="/appointments/lookup"
                     className="text-xs font-semibold text-primary underline-offset-4 hover:underline"
                   >
-                    Check existing appointment status
+                    {t.about.checkStatus}
                   </Link>
                 </div>
               </div>

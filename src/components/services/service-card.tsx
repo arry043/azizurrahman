@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -5,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ClockIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
+import { useTranslations } from "@/i18n/client";
+import { getLocalizedService } from "@/i18n/services-dictionary";
 import type { PublicService } from "@/types/domain";
 
 export interface ServiceCardProps {
@@ -13,6 +17,9 @@ export interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, showBookButton = true }: ServiceCardProps) {
+  const { t, locale } = useTranslations();
+  const localized = getLocalizedService(service, locale);
+
   const detailUrl = `/services/${service.slug}`;
   const bookUrl = `/book?service=${service.slug}`;
 
@@ -26,7 +33,7 @@ export function ServiceCard({ service, showBookButton = true }: ServiceCardProps
         {service.image_url ? (
           <Image
             src={service.image_url}
-            alt={service.name}
+            alt={localized.name}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-300 hover:scale-105"
@@ -47,34 +54,32 @@ export function ServiceCard({ service, showBookButton = true }: ServiceCardProps
 
         {/* Duration badge */}
         {service.duration_minutes > 0 && (
-          <div className="absolute right-3 bottom-3">
+          <div className="absolute end-3 bottom-3">
             <Badge
               variant="neutral"
               size="sm"
               icon={<ClockIcon className="size-3 text-primary" />}
               className="bg-surface/90 font-medium text-foreground shadow-subtle backdrop-blur-xs"
             >
-              {service.duration_minutes} mins
+              {service.duration_minutes} {t.common.mins}
             </Badge>
           </div>
         )}
       </div>
 
       {/* Card Content */}
-      <div className="flex flex-1 flex-col p-6 sm:p-7">
+      <div className="flex flex-1 flex-col p-6 text-start sm:p-7">
         <h3 className="font-display text-xl leading-tight font-semibold text-primary sm:text-2xl">
           <Link
             href={detailUrl}
             className="rounded-xs hover:underline focus-visible:outline-2 focus-visible:outline-focus"
           >
-            {service.name}
+            {localized.name}
           </Link>
         </h3>
 
         <p className="mt-2.5 flex-1 text-sm leading-relaxed text-muted">
-          {service.short_description ||
-            service.description ||
-            "Spiritual consultation and ethical guidance."}
+          {localized.short_description || localized.description || t.services.description}
         </p>
 
         {/* Card Actions */}
@@ -83,13 +88,13 @@ export function ServiceCard({ service, showBookButton = true }: ServiceCardProps
             href={detailUrl}
             className="py-1 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-focus"
           >
-            View Details
+            {t.common.viewDetails}
           </Link>
 
           {showBookButton && (
-            <div className="ml-auto">
+            <div className="ms-auto">
               <LinkButton href={bookUrl} variant="primary" size="sm">
-                Request Slot
+                {t.services.requestSlot}
               </LinkButton>
             </div>
           )}

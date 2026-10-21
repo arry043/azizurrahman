@@ -31,7 +31,10 @@ export function Breadcrumbs({ items, className, homeLabel = "Home" }: Breadcrumb
           return (
             <li key={`${item.label}-${index}`} className="flex items-center gap-1.5 sm:gap-2">
               {index > 0 && (
-                <ChevronRightIcon className="size-3.5 shrink-0 text-border" aria-hidden="true" />
+                <ChevronRightIcon
+                  className="size-3.5 shrink-0 text-border rtl:rotate-180"
+                  aria-hidden="true"
+                />
               )}
               {isLast || !item.href ? (
                 <span

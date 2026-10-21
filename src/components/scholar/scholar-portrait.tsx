@@ -1,9 +1,12 @@
+"use client";
+
 import Image from "next/image";
 
 import { MapPinIcon, ShieldCheckIcon, SparklesIcon, UserIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
 import { Ornament } from "@/components/ui/ornament";
 import { scholarProfile } from "@/config/scholar-profile";
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 export interface ScholarPortraitProps {
@@ -18,6 +21,13 @@ export function ScholarPortrait({
   showActions = true,
 }: ScholarPortraitProps) {
   const isCompact = variant === "compact";
+  const { t, locale } = useTranslations();
+  const isUr = locale === "ur";
+
+  const institutionName = isUr
+    ? scholarProfile.education.institutionUr
+    : scholarProfile.education.institution;
+  const townName = isUr ? "سرائمیر" : scholarProfile.contact.address.town;
 
   return (
     <div className={cn("relative mx-auto flex flex-col items-center text-center", className)}>
@@ -90,7 +100,7 @@ export function ScholarPortrait({
         </p>
 
         <p className="mt-1 text-xs font-semibold tracking-[0.2em] text-muted uppercase">
-          {scholarProfile.identity.titleEn}
+          {isUr ? scholarProfile.identity.titleUr : scholarProfile.identity.titleEn}
         </p>
 
         <Ornament className="mt-3 justify-center" />
@@ -98,9 +108,9 @@ export function ScholarPortrait({
         {/* Clean Educational Credential (Borderless & Aesthetic) */}
         <div className="mt-3.5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-surface/80 px-4 py-1.5 text-xs text-primary shadow-xs backdrop-blur-xs">
           <MapPinIcon className="size-3.5 text-accent-strong" />
-          <span className="font-medium">{scholarProfile.education.institution}</span>
+          <span className="font-medium">{institutionName}</span>
           <span className="text-muted/60">•</span>
-          <span className="text-muted">{scholarProfile.contact.address.town}</span>
+          <span className="text-muted">{townName}</span>
         </div>
 
         {/* Trust Badges - Clean Floating Row (Full Variant) */}
@@ -108,15 +118,15 @@ export function ScholarPortrait({
           <div className="mt-5 flex flex-wrap justify-center gap-2 pt-1 text-xs text-muted">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/70 px-3.5 py-1.5 shadow-xs">
               <ShieldCheckIcon className="size-3.5 text-emerald" />
-              <span>Strict Confidentiality</span>
+              <span>{isUr ? "مکمل رازداری" : "Strict Confidentiality"}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/70 px-3.5 py-1.5 shadow-xs">
               <SparklesIcon className="size-3.5 text-accent-strong" />
-              <span>Qur&apos;an &amp; Sunnah Guidance</span>
+              <span>{isUr ? "قرآن و سنت کی روشنی میں رہنمائی" : "Qur'an & Sunnah Guidance"}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/70 px-3.5 py-1.5 shadow-xs">
               <UserIcon className="size-3.5 text-emerald" />
-              <span>Personalized Attention</span>
+              <span>{isUr ? "انفرادی توجہ" : "Personalized Attention"}</span>
             </span>
           </div>
         )}
@@ -125,7 +135,7 @@ export function ScholarPortrait({
         {showActions && (
           <div className="mt-6 flex w-full max-w-xs flex-col gap-2.5 sm:flex-row">
             <LinkButton href="/book" variant="primary" size="md" className="w-full justify-center">
-              Book Appointment
+              {t.common.bookAppointment}
             </LinkButton>
             <LinkButton
               href="/contact"
@@ -133,7 +143,7 @@ export function ScholarPortrait({
               size="md"
               className="w-full justify-center border-accent/50 text-primary hover:bg-cream/40"
             >
-              Contact
+              {t.navigation.contact}
             </LinkButton>
           </div>
         )}

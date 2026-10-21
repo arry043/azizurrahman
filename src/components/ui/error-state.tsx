@@ -12,6 +12,8 @@ export interface ErrorStateProps {
   homeLink?: boolean;
   action?: ReactNode;
   className?: string;
+  retryLabel?: string;
+  homeLabel?: string;
 }
 
 export function ErrorState({
@@ -21,6 +23,8 @@ export function ErrorState({
   homeLink = true,
   action,
   className,
+  retryLabel = "Try Again",
+  homeLabel = "Return Home",
 }: ErrorStateProps) {
   return (
     <div
@@ -39,12 +43,12 @@ export function ErrorState({
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         {onRetry && (
           <Button variant="primary" size="md" onClick={onRetry}>
-            Try Again
+            {retryLabel}
           </Button>
         )}
         {homeLink && (
           <LinkButton href="/" variant="secondary" size="md">
-            Return Home
+            {homeLabel}
           </LinkButton>
         )}
         {action}
