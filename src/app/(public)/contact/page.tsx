@@ -15,8 +15,16 @@ import { siteConfig } from "@/config/site";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
 export const metadata: Metadata = {
-  title: `Contact ${scholarProfile.identity.fullNameEn} | ${siteConfig.name}`,
+  title: `Contact ${scholarProfile.identity.fullNameEn}`,
   description: `Official contact information for ${scholarProfile.identity.fullNameEn}. Email, postal address, and consultation appointment scheduling.`,
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: `Contact ${scholarProfile.identity.fullNameEn} · ${siteConfig.name}`,
+    description: `Official contact information for ${scholarProfile.identity.fullNameEn}. Email, postal address, and consultation appointment scheduling.`,
+    url: "/contact",
+  },
 };
 
 export const instant = false;

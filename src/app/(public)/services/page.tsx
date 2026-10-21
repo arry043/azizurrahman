@@ -15,6 +15,15 @@ export const metadata: Metadata = {
   title: "Services",
   description:
     "Explore our spiritual consultation services, Quranic reflection, and dedicated one-on-one sessions.",
+  alternates: {
+    canonical: "/services",
+  },
+  openGraph: {
+    title: "Services · AZIZURRAHMAN",
+    description:
+      "Explore our spiritual consultation services, Quranic reflection, and dedicated one-on-one sessions.",
+    url: "/services",
+  },
 };
 
 export const instant = false;

@@ -8,7 +8,7 @@
  * Skipped automatically when the variables are not set (e.g. in CI without Docker).
  */
 import { createClient } from "@supabase/supabase-js";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import type { Database } from "@/types/database.types";
 
@@ -63,10 +63,62 @@ describe.skipIf(!configured)("Data API as an anonymous visitor", () => {
     "admin_profiles",
     "date_overrides",
     "date_override_intervals",
+    "notification_logs",
+    "booking_idempotency_keys",
+    "appointment_verifications",
+    "rate_limits",
   ] as const)("is denied read access to %s", async (table) => {
     const { data, error } = await anon.from(table).select("*").limit(1);
     expect(data).toBeNull();
     expect(error?.code).toBe("42501");
+  });
+
+  it("cannot execute service-role RPC functions directly", async () => {
+    const bookingRpc = await anon.rpc(
+      "create_guest_booking" as never,
+      {
+        p_customer_name: "Attacker",
+        p_phone_number: "+919876543210",
+        p_normalized_phone: "+919876543210",
+        p_email: null,
+        p_preferred_contact_method: null,
+        p_message: null,
+        p_appointment_start: "2030-01-01T05:00:00Z",
+        p_appointment_end: "2030-01-01T05:30:00Z",
+        p_blocked_start: "2030-01-01T05:00:00Z",
+        p_blocked_end: "2030-01-01T05:30:00Z",
+        p_timezone: "Asia/Kolkata",
+        p_service_ids: ["00000000-0000-4000-8000-000000000101"],
+      } as never,
+    );
+    expect(bookingRpc.error?.code).toBe("42501");
+
+    const rateLimitRpc = await anon.rpc(
+      "consume_rate_limit" as never,
+      {
+        p_key: "probe",
+        p_limit: 5,
+        p_window_seconds: 60,
+      } as never,
+    );
+    expect(rateLimitRpc.error?.code).toBe("42501");
+
+    const cleanupRpc = await anon.rpc(
+      "cleanup_expired_rate_limits" as never,
+      { p_batch_size: 100 } as never,
+    );
+    expect(cleanupRpc.error?.code).toBe("42501");
+  });
+
+  it("cannot insert into admin_profiles or elevate privileges", async () => {
+    const { error } = await anon.from("admin_profiles").insert({
+      id: "00000000-0000-0000-0000-000000000001",
+      full_name: "Privilege Escalation Attempt",
+      role: "owner",
+      is_active: true,
+    } as never);
+    // PostgREST rejects with either 42501 (permission denied) or PGRST204 (no insert privilege on relation)
+    expect(["42501", "PGRST204"]).toContain(error?.code);
   });
 
   it("cannot create an appointment directly", async () => {
@@ -121,5 +173,94 @@ describe.skipIf(!configured)("Data API as the trusted server (service role)", ()
       .limit(5);
     expect(error).toBeNull();
     expect(data?.length).toBeGreaterThan(0);
+  });
+});
+
+describe.skipIf(!configured)("Data API as an authenticated non-admin user", () => {
+  const server = configured ? createClient<Database>(url!, serviceRoleKey!, options) : null!;
+  let authClient: ReturnType<typeof createClient<Database>>;
+  let userId: string;
+
+  beforeAll(async () => {
+    const email = `auth-test-${Date.now()}@example.com`;
+    const password = "TestUserPassword123!";
+    const { data, error } = await server.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+    if (error || !data.user) {
+      throw new Error(`Failed to create test user: ${error?.message}`);
+    }
+    userId = data.user.id;
+
+    authClient = createClient<Database>(url!, anonKey!, options);
+    const signIn = await authClient.auth.signInWithPassword({ email, password });
+    if (signIn.error) {
+      throw new Error(`Failed to sign in test user: ${signIn.error.message}`);
+    }
+  });
+
+  afterAll(async () => {
+    if (userId) {
+      await server.auth.admin.deleteUser(userId);
+    }
+  });
+
+  it("is denied read access to protected tables including rate_limits and appointments", async () => {
+    // rate_limits has all permissions revoked from authenticated -> 42501
+    const rateLimits = await authClient.from("rate_limits").select("*").limit(1);
+    expect(rateLimits.error?.code).toBe("42501");
+
+    // appointments has RLS enabled with admin check; non-admin receives zero rows
+    const appointments = await authClient.from("appointments").select("*").limit(1);
+    expect(appointments.error).toBeNull();
+    expect(appointments.data).toEqual([]);
+
+    // Direct insert into appointments by non-admin is blocked by RLS check
+    const insertAttempt = await authClient.from("appointments").insert({
+      customer_name: "Authenticated Non-Admin",
+      phone_number: "+15555550999",
+      normalized_phone: "+15555550999",
+      appointment_start: "2033-01-01T05:00:00Z",
+      appointment_end: "2033-01-01T05:30:00Z",
+      blocked_start: "2033-01-01T05:00:00Z",
+      blocked_end: "2033-01-01T05:30:00Z",
+      timezone: "Asia/Kolkata",
+    });
+    expect(insertAttempt.error?.code).toBe("42501");
+  });
+
+  it("cannot execute service-role RPC functions directly", async () => {
+    const bookingRpc = await authClient.rpc(
+      "create_guest_booking" as never,
+      {
+        p_customer_name: "Attacker",
+        p_phone_number: "+919876543210",
+        p_normalized_phone: "+919876543210",
+        p_email: null,
+        p_preferred_contact_method: null,
+        p_message: null,
+        p_appointment_start: "2030-01-01T05:00:00Z",
+        p_appointment_end: "2030-01-01T05:30:00Z",
+        p_blocked_start: "2030-01-01T05:00:00Z",
+        p_blocked_end: "2030-01-01T05:30:00Z",
+        p_timezone: "Asia/Kolkata",
+        p_service_ids: ["00000000-0000-4000-8000-000000000101"],
+      } as never,
+    );
+    expect(bookingRpc.error?.code).toBe("42501");
+
+    const rateLimitRpc = await authClient.rpc(
+      "consume_rate_limit" as never,
+      { p_key: "auth-test", p_limit: 5, p_window_seconds: 60 } as never,
+    );
+    expect(rateLimitRpc.error?.code).toBe("42501");
+
+    const cleanupRpc = await authClient.rpc(
+      "cleanup_expired_rate_limits" as never,
+      { p_batch_size: 100 } as never,
+    );
+    expect(cleanupRpc.error?.code).toBe("42501");
   });
 });

@@ -5,6 +5,12 @@ import {
   getPublicDayAvailability,
   getPublicMonthAvailability,
 } from "@/lib/availability/availability-service";
+import {
+  checkAvailabilityRateLimit,
+  createRateLimitHeaders,
+  createRateLimitResponse,
+  getClientIp,
+} from "@/lib/rate-limit";
 
 const querySchema = z
   .object({
@@ -33,6 +39,15 @@ const querySchema = z
 
 export async function GET(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimit = await checkAvailabilityRateLimit(clientIp);
+
+    if (!rateLimit.allowed) {
+      return createRateLimitResponse(rateLimit);
+    }
+
+    const rateLimitHeaders = createRateLimitHeaders(rateLimit);
+
     const searchParams = request.nextUrl.searchParams;
     const rawParams = {
       month: searchParams.get("month") || undefined,
@@ -47,7 +62,7 @@ export async function GET(request: NextRequest) {
           error: "Invalid availability request",
           details: parsed.error.issues.map((i) => i.message),
         },
-        { status: 400 },
+        { status: 400, headers: rateLimitHeaders },
       );
     }
 
@@ -66,6 +81,7 @@ export async function GET(request: NextRequest) {
         },
         {
           headers: {
+            ...rateLimitHeaders,
             "Cache-Control": "private, no-cache, no-store, must-revalidate",
           },
         },
@@ -90,13 +106,17 @@ export async function GET(request: NextRequest) {
         },
         {
           headers: {
+            ...rateLimitHeaders,
             "Cache-Control": "private, no-cache, no-store, must-revalidate",
           },
         },
       );
     }
 
-    return NextResponse.json({ error: "Missing date or month parameter" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing date or month parameter" },
+      { status: 400, headers: rateLimitHeaders },
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load availability";
     return NextResponse.json(

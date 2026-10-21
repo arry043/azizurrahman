@@ -22,6 +22,15 @@ export const metadata: Metadata = {
   title: "Book an Appointment",
   description:
     "Request a spiritual consultation appointment with AZIZURRAHMAN. Simple, guest-friendly booking with no public account needed.",
+  alternates: {
+    canonical: "/book",
+  },
+  openGraph: {
+    title: "Book an Appointment · AZIZURRAHMAN",
+    description:
+      "Request a spiritual consultation appointment with AZIZURRAHMAN. Simple, guest-friendly booking with no public account needed.",
+    url: "/book",
+  },
 };
 
 export const instant = false;

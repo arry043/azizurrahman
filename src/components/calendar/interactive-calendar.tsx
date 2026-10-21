@@ -73,6 +73,7 @@ export function InteractiveCalendar({
   const [monthData, setMonthData] = useState<MonthData | null>(null);
   const [dayData, setDayData] = useState<DayData | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState<string>("");
 
   const activeMonthData = serviceIds.length > 0 ? monthData : null;
   const activeDayData = selectedDate && serviceIds.length > 0 ? dayData : null;
@@ -150,11 +151,16 @@ export function InteractiveCalendar({
       .then((json) => {
         if (isMounted) {
           setDayData(json.data);
+          const slotCount = json.data?.slots?.length ?? 0;
+          setAnnouncement(
+            `${slotCount} consultation slot${slotCount === 1 ? "" : "s"} available for ${selectedDate}.`,
+          );
         }
       })
       .catch(() => {
         if (isMounted) {
           setDayData(null);
+          setAnnouncement(`No consultation slots available for ${selectedDate}.`);
         }
       });
 
@@ -164,21 +170,19 @@ export function InteractiveCalendar({
   }, [selectedDate, serviceIds]);
 
   function handlePrevMonth() {
-    if (currentMonth === 1) {
-      setCurrentYear((y) => y - 1);
-      setCurrentMonth(12);
-    } else {
-      setCurrentMonth((m) => m - 1);
-    }
+    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+    setCurrentYear(prevYear);
+    setCurrentMonth(prevMonth);
+    setAnnouncement(`Showing ${MONTH_NAMES[prevMonth - 1]} ${prevYear}`);
   }
 
   function handleNextMonth() {
-    if (currentMonth === 12) {
-      setCurrentYear((y) => y + 1);
-      setCurrentMonth(1);
-    } else {
-      setCurrentMonth((m) => m + 1);
-    }
+    const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+    const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+    setCurrentYear(nextYear);
+    setCurrentMonth(nextMonth);
+    setAnnouncement(`Showing ${MONTH_NAMES[nextMonth - 1]} ${nextYear}`);
   }
 
   // Calculate grid padding for the first day of the month
@@ -205,6 +209,11 @@ export function InteractiveCalendar({
         </Alert>
       )}
 
+      {/* Live accessibility announcement for screen readers */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
+
       {/* Main Calendar Card & Layout */}
       <div className="grid gap-8 lg:grid-cols-12">
         {/* Month Grid Column */}
@@ -220,12 +229,12 @@ export function InteractiveCalendar({
               </span>
               {loadingMonth && <SpinnerIcon className="size-4 animate-spin text-accent" />}
             </h4>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={handlePrevMonth}
                 aria-label="Previous month"
-                className="flex size-9 items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
+                className="flex size-11 items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus sm:size-10"
               >
                 <ChevronLeftIcon className="size-4" />
               </button>
@@ -233,7 +242,7 @@ export function InteractiveCalendar({
                 type="button"
                 onClick={handleNextMonth}
                 aria-label="Next month"
-                className="flex size-9 items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus"
+                className="flex size-11 items-center justify-center rounded-control border border-border text-foreground hover:bg-surface-muted focus-visible:outline-3 focus-visible:outline-focus sm:size-10"
               >
                 <ChevronRightIcon className="size-4" />
               </button>
@@ -257,7 +266,7 @@ export function InteractiveCalendar({
           >
             {/* Blank offset cells */}
             {Array.from({ length: firstDayOfWeek }).map((_, i) => (
-              <div key={`blank-${i}`} aria-hidden="true" className="h-10 sm:h-12" />
+              <div key={`blank-${i}`} aria-hidden="true" className="min-h-11 sm:h-12" />
             ))}
 
             {/* Month Day Cells */}
@@ -280,15 +289,19 @@ export function InteractiveCalendar({
                   key={day.date}
                   type="button"
                   disabled={!isAvailable}
+                  aria-disabled={!isAvailable}
                   onClick={() => {
                     if (isAvailable) {
+                      setAnnouncement(
+                        `Selected ${MONTH_NAMES[m! - 1]} ${d}, ${y}. Loading available times.`,
+                      );
                       onSelectSlot(day.date, "");
                     }
                   }}
                   aria-label={`${MONTH_NAMES[m! - 1]} ${d}, ${y}: ${stateLabel}`}
                   aria-pressed={isSelected}
                   className={cn(
-                    "relative flex h-10 flex-col items-center justify-center rounded-control text-xs font-medium transition-all sm:h-12 sm:text-sm",
+                    "relative flex min-h-11 min-w-10 flex-col items-center justify-center rounded-control text-xs font-medium transition-all sm:h-12 sm:min-w-11 sm:text-sm",
                     "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus",
                     isSelected
                       ? "border-2 border-primary bg-primary font-semibold text-primary-foreground shadow-subtle"

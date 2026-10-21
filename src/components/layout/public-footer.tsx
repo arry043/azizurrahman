@@ -96,6 +96,14 @@ export function PublicFooter() {
                   Lookup Existing Appointment
                 </Link>
               </div>
+              <div>
+                <Link
+                  href="/privacy"
+                  className="inline-flex items-center text-xs text-muted transition-colors hover:text-primary"
+                >
+                  Privacy Notice &amp; Data Policy
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -104,7 +112,10 @@ export function PublicFooter() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/70 pt-8 text-center text-xs text-muted sm:flex-row sm:text-left">
           <p>
             © <CurrentYear /> {siteConfig.name} — {scholarProfile.identity.fullNameEn}. All rights
-            reserved.
+            reserved. ·{" "}
+            <Link href="/privacy" className="underline hover:text-primary">
+              Privacy Notice
+            </Link>
           </p>
           <p className="max-w-md">
             Consultations are spiritual and advisory in nature. Outcomes are solely by Allah&apos;s

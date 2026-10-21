@@ -276,6 +276,18 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
   // ── Multi-Step Booking Wizard ──────────────────────────────────────────────────────────
   return (
     <div className={cn("space-y-8", className)}>
+      {/* Live announcement for step changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        Step {step} of 4:{" "}
+        {step === 1
+          ? "Choose Consultation Services"
+          : step === 2
+            ? "Select Consultation Date and Time"
+            : step === 3
+              ? "Enter Contact Information"
+              : "Review and Confirm Request"}
+      </div>
+
       {/* Wizard Step Indicator */}
       <nav aria-label="Booking steps" className="border-b border-border/60 pb-4">
         <ol className="flex items-center justify-between gap-2 sm:gap-4">
@@ -339,11 +351,21 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
               const isSelected = selectedServiceIds.includes(srv.id);
 
               return (
-                <div
+                <button
                   key={srv.id}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={isSelected}
                   onClick={() => toggleService(srv.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") {
+                      e.preventDefault();
+                      toggleService(srv.id);
+                    }
+                  }}
                   className={cn(
-                    "cursor-pointer rounded-card border p-4 transition-all",
+                    "w-full cursor-pointer rounded-card border p-4 text-left transition-all",
+                    "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus",
                     isSelected
                       ? "border-primary bg-primary/5 shadow-subtle"
                       : "border-border bg-surface hover:border-primary/50",
@@ -374,7 +396,7 @@ export function BookingForm({ services, preselectedServiceSlug, className }: Boo
                       {isSelected && <CheckIcon className="size-3.5" />}
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

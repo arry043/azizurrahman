@@ -2,6 +2,12 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createGuestBooking } from "@/lib/booking/booking-service";
+import {
+  checkBookingRateLimit,
+  createRateLimitHeaders,
+  createRateLimitResponse,
+  getClientIp,
+} from "@/lib/rate-limit";
 
 const bookingSchema = z.object({
   customerName: z.string().min(1, "Name is required").max(120, "Name cannot exceed 120 characters"),
@@ -25,11 +31,23 @@ const bookingSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimit = await checkBookingRateLimit(clientIp);
+
+    if (!rateLimit.allowed) {
+      return createRateLimitResponse(rateLimit);
+    }
+
+    const rateLimitHeaders = createRateLimitHeaders(rateLimit);
+
     let body: unknown;
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ error: "Invalid JSON request body" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid JSON request body" },
+        { status: 400, headers: rateLimitHeaders },
+      );
     }
 
     const parsed = bookingSchema.safeParse(body);
@@ -39,7 +57,7 @@ export async function POST(request: NextRequest) {
           error: "Validation failed",
           details: parsed.error.issues.map((i) => i.message),
         },
-        { status: 400 },
+        { status: 400, headers: rateLimitHeaders },
       );
     }
 
@@ -64,7 +82,7 @@ export async function POST(request: NextRequest) {
           error: result.error,
           code: result.code,
         },
-        { status: isConflict ? 409 : 400 },
+        { status: isConflict ? 409 : 400, headers: rateLimitHeaders },
       );
     }
 
@@ -76,6 +94,7 @@ export async function POST(request: NextRequest) {
       {
         status: 200,
         headers: {
+          ...rateLimitHeaders,
           "Cache-Control": "no-store, private",
         },
       },

@@ -35,7 +35,10 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+    <main
+      id="main-content"
+      className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8"
+    >
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <Link
@@ -66,6 +69,6 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

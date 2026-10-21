@@ -4,6 +4,16 @@ import { scholarProfile } from "./scholar-profile";
  * Site configuration and official client facts for AZIZURRAHMAN.
  * Reusable constants across public and administrative pages.
  */
+export const isSiteIndexable = (): boolean => {
+  if (process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true") return true;
+  if (process.env.NEXT_PUBLIC_ALLOW_INDEXING === "false") return false;
+  // Default: allow indexing in production when a canonical HTTPS production domain is configured
+  return (
+    process.env.NODE_ENV === "production" &&
+    Boolean(process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://"))
+  );
+};
+
 export const siteConfig = {
   name: "AZIZURRAHMAN",
   scholarName: scholarProfile.identity.fullNameEn,
@@ -23,5 +33,7 @@ export const siteConfig = {
   address: scholarProfile.contact.address.full,
   compactAddress: scholarProfile.contact.address.compact,
   email: scholarProfile.contact.email,
-  indexable: false,
+  get indexable() {
+    return isSiteIndexable();
+  },
 } as const;

@@ -139,6 +139,34 @@ export async function createGuestBooking(
 
   const supabase = createServiceRoleClient();
 
+  // 6b. Idempotency fast-path replay check
+  if (input.idempotencyKey) {
+    const { data: existingKey } = await supabase
+      .from("booking_idempotency_keys")
+      .select("response_payload, request_hash")
+      .eq("idempotency_key", input.idempotencyKey)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    if (existingKey) {
+      const requestHash = computeRequestHash(input, normalizedPhone);
+      if (existingKey.request_hash !== requestHash) {
+        return {
+          success: false,
+          error: "Idempotency key reused with mismatched request parameters.",
+          code: "IDEMPOTENCY_CONFLICT",
+        };
+      }
+      return {
+        success: true,
+        receipt: existingKey.response_payload as unknown as PublicAppointmentReceipt & {
+          customer_name: string;
+          created_at: string;
+        },
+      };
+    }
+  }
+
   // 7. Load services and site settings
   const [servicesRes, settingsRes] = await Promise.all([
     supabase.from("services").select("*").in("id", input.serviceIds).eq("is_active", true),

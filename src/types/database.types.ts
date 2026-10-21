@@ -418,6 +418,25 @@ export type Database = {
           },
         ];
       };
+      rate_limits: {
+        Row: {
+          expires_at: string;
+          key: string;
+          points: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          expires_at: string;
+          key: string;
+          points?: number;
+        };
+        Update: {
+          expires_at?: string;
+          key?: string;
+          points?: number;
+        };
+        Relationships: [];
+      };
       services: {
         Row: {
           buffer_after_minutes: number;

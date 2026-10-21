@@ -10,12 +10,15 @@ import {
   CheckIcon,
   InfoIcon,
   LockIcon,
+  PhoneIcon,
   PrinterIcon,
   SearchIcon,
   ShieldCheckIcon,
+  WhatsAppIcon,
 } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { LinkButton } from "@/components/ui/link-button";
+import { scholarProfile } from "@/config/scholar-profile";
 import type { PublicAppointmentReceipt } from "@/types/domain";
 
 export function LookupForm() {
@@ -327,6 +330,14 @@ export function LookupForm() {
         <p className="mt-1 text-xs text-muted sm:text-sm">
           Enter your reference code and the contact details provided at booking.
         </p>
+
+        <div className="mt-3.5 rounded-control border border-accent/40 bg-cream/40 p-3 text-xs text-muted">
+          <p className="font-semibold text-primary">Self-Service Lookup Status</p>
+          <p className="mt-0.5 leading-relaxed">
+            Automated SMS/WhatsApp OTP dispatch is currently awaiting client credentials. In
+            production, appointment status can be confirmed directly with our consultation desk.
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleInitiate} className="space-y-4">
@@ -392,10 +403,28 @@ export function LookupForm() {
           icon={<InfoIcon className="size-5 text-primary" />}
         >
           <p className="text-xs leading-relaxed text-muted sm:text-sm">{statusNotice}</p>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <LinkButton href="/contact" variant="secondary" size="sm">
               Contact Consultation Line
             </LinkButton>
+            <a
+              href={`tel:${scholarProfile.contact.phone.internationalCandidate}`}
+              className="inline-flex items-center gap-1.5 rounded-control border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+            >
+              <PhoneIcon className="size-3.5 text-accent-strong" />
+              <span>Call Consultation Desk</span>
+            </a>
+            <a
+              href={`https://wa.me/${scholarProfile.contact.phone.internationalCandidate.replace(/\D/g, "")}?text=${encodeURIComponent(
+                scholarProfile.contact.whatsapp.defaultMessageEn,
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-800 dark:text-emerald-200 inline-flex items-center gap-1.5 rounded-control border border-emerald/40 bg-emerald/10 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-emerald/20 focus-visible:ring-2 focus-visible:ring-emerald focus-visible:outline-none"
+            >
+              <WhatsAppIcon className="size-3.5 text-emerald" />
+              <span>WhatsApp Consultation Desk</span>
+            </a>
           </div>
         </Alert>
       )}

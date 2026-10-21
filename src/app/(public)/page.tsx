@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,6 +22,21 @@ import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
 import { getActiveServices, getPublicSiteSettings } from "@/lib/services/public-services";
 
+export const metadata: Metadata = {
+  title: `${scholarProfile.identity.fullNameEn} — Ethical Islamic Guidance & Consultation`,
+  description:
+    "Official website of Maulvi Azizurrahman (Aamil). Sincere spiritual counsel, prayer, and guidance grounded in Qur'an and Sunnah.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: `${scholarProfile.identity.fullNameEn} — Ethical Islamic Guidance & Consultation`,
+    description:
+      "Official website of Maulvi Azizurrahman (Aamil). Sincere spiritual counsel, prayer, and guidance grounded in Qur'an and Sunnah.",
+    url: "/",
+  },
+};
+
 export const instant = false;
 
 export default async function HomePage() {
@@ -31,8 +47,51 @@ export default async function HomePage() {
 
   const featuredServices = services.slice(0, 3);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteConfig.name}-website`,
+        name: siteConfig.name,
+        description: siteConfig.description,
+        inLanguage: siteConfig.locale,
+      },
+      {
+        "@type": "Person",
+        "@id": `${siteConfig.name}-scholar`,
+        name: scholarProfile.identity.fullNameEn,
+        honorificPrefix: scholarProfile.identity.honorificEn,
+        jobTitle: scholarProfile.identity.titleEn,
+        description: scholarProfile.content.en.shortBio,
+        alumniOf: {
+          "@type": "EducationalOrganization",
+          name: scholarProfile.education.institution,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: scholarProfile.education.location,
+            addressCountry: "IN",
+          },
+        },
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: `${scholarProfile.contact.address.village}, ${scholarProfile.contact.address.town}`,
+          addressLocality: scholarProfile.contact.address.district,
+          addressRegion: scholarProfile.contact.address.state,
+          postalCode: scholarProfile.contact.address.pincode,
+          addressCountry: "IN",
+        },
+        email: scholarProfile.contact.email,
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 1. Hero Section */}
       <section className="relative overflow-hidden bg-surface-inverse py-16 text-foreground-inverse sm:py-24 lg:py-32">
         {/* Ambient background glow & subtle Islamic pattern */}

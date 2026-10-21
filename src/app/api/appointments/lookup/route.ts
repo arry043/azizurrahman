@@ -2,6 +2,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { initiateAppointmentLookup, verifyAppointmentLookup } from "@/lib/lookup/lookup-service";
+import {
+  checkLookupInitiateRateLimit,
+  checkLookupVerifyRateLimit,
+  createRateLimitHeaders,
+  createRateLimitResponse,
+  getClientIp,
+} from "@/lib/rate-limit";
 
 const initiateSchema = z.object({
   action: z.literal("initiate"),
@@ -19,6 +26,8 @@ const lookupRequestSchema = z.discriminatedUnion("action", [initiateSchema, veri
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+
     let body: unknown;
     try {
       body = await request.json();
@@ -38,17 +47,32 @@ export async function POST(request: NextRequest) {
     }
 
     if (parsed.data.action === "initiate") {
+      const rateLimit = await checkLookupInitiateRateLimit(clientIp);
+      if (!rateLimit.allowed) {
+        return createRateLimitResponse(rateLimit);
+      }
+      const rateLimitHeaders = createRateLimitHeaders(rateLimit);
+
       const result = await initiateAppointmentLookup({
         publicReference: parsed.data.publicReference,
         contact: parsed.data.contact,
       });
 
       return NextResponse.json(result, {
-        headers: { "Cache-Control": "no-store, private" },
+        headers: {
+          ...rateLimitHeaders,
+          "Cache-Control": "no-store, private",
+        },
       });
     }
 
     if (parsed.data.action === "verify") {
+      const rateLimit = await checkLookupVerifyRateLimit(clientIp);
+      if (!rateLimit.allowed) {
+        return createRateLimitResponse(rateLimit);
+      }
+      const rateLimitHeaders = createRateLimitHeaders(rateLimit);
+
       const result = await verifyAppointmentLookup({
         publicReference: parsed.data.publicReference,
         token: parsed.data.token,
@@ -57,7 +81,13 @@ export async function POST(request: NextRequest) {
       if (!result.success) {
         return NextResponse.json(
           { error: result.error },
-          { status: 401, headers: { "Cache-Control": "no-store, private" } },
+          {
+            status: 401,
+            headers: {
+              ...rateLimitHeaders,
+              "Cache-Control": "no-store, private",
+            },
+          },
         );
       }
 
@@ -67,7 +97,10 @@ export async function POST(request: NextRequest) {
           receipt: result.receipt,
         },
         {
-          headers: { "Cache-Control": "no-store, private" },
+          headers: {
+            ...rateLimitHeaders,
+            "Cache-Control": "no-store, private",
+          },
         },
       );
     }
