@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { buildWhatsAppUrl } from "@/components/contact/contact-actions";
+import { scholarProfile } from "@/config/scholar-profile";
 import { MockEmailAdapter } from "@/lib/notifications/adapters/mock-adapter";
 import { ResendEmailAdapter } from "@/lib/notifications/adapters/resend-adapter";
 import { sendAppointmentNotification } from "@/lib/notifications/delivery-service";
@@ -248,9 +249,8 @@ describe("Phase 12: Notification System & Contact Integrations", () => {
   describe("Direct Contact & WhatsApp URL Builder", () => {
     it("generates correctly formatted wa.me link with URL-encoded inquiry text", () => {
       const url = buildWhatsAppUrl("+91 8423668492");
-      expect(url).toBe(
-        "https://wa.me/918423668492?text=Assalamu%20Alaikum%2C%20I%20would%20like%20to%20enquire%20about%20an%20appointment%20with%20Maulvi%20Azizurrahman.",
-      );
+      const expectedText = encodeURIComponent(scholarProfile.contact.whatsapp.bilingualMessage);
+      expect(url).toBe(`https://wa.me/918423668492?text=${expectedText}`);
     });
 
     it("URL-encodes custom template text including non-ASCII and punctuation", () => {

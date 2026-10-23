@@ -24,13 +24,17 @@ export function ScholarPortrait({
   const { t, locale } = useTranslations();
   const isUr = locale === "ur";
 
-  const institutionName = isUr
-    ? scholarProfile.education.institutionUr
-    : scholarProfile.education.institution;
-  const townName = isUr ? "سرائمیر" : scholarProfile.contact.address.town;
+  const addressText = isUr
+    ? scholarProfile.contact.address.compactUr || "کھریواں، سرائمیر، اعظم گڑھ، یوپی، انڈیا، 276305"
+    : "Kharewan, Saraimeer, Azamgarh, UP, India, 276305";
 
   return (
-    <div className={cn("relative mx-auto flex flex-col items-center text-center", className)}>
+    <div
+      className={cn(
+        "scholar-portrait relative mx-auto flex flex-col items-center text-center",
+        className,
+      )}
+    >
       {/* 1. Architectural Islamic Arch Backdrop with Ambient Spiritual Radiance */}
       <div className="relative mx-auto flex justify-center">
         {/* Soft Ambient Radiance / Spiritual Golden Halo */}
@@ -87,16 +91,18 @@ export function ScholarPortrait({
 
       {/* 2. Classic Typographic Plaque (Clean, Open, Borderless) */}
       <div className="mt-5 flex flex-col items-center">
-        <h3 className="font-display text-2xl font-semibold tracking-tight text-primary sm:text-3xl">
-          {scholarProfile.identity.fullNameEn}
-        </h3>
-
-        <p
+        {/* Arabic Name (Above) */}
+        <h3
           lang="ur"
           dir="rtl"
-          className="mt-1 font-serif text-lg font-medium tracking-wide text-accent-strong"
+          className="font-urdu text-2xl leading-relaxed font-bold tracking-wide text-primary sm:text-3xl"
         >
           {scholarProfile.identity.fullNameUr}
+        </h3>
+
+        {/* English Name (Below) */}
+        <p className="mt-1 font-display text-xl font-semibold tracking-tight text-accent-strong sm:text-2xl">
+          {scholarProfile.identity.fullNameEn}
         </p>
 
         <p className="mt-1 text-xs font-semibold tracking-[0.2em] text-muted uppercase">
@@ -105,12 +111,10 @@ export function ScholarPortrait({
 
         <Ornament className="mt-3 justify-center" />
 
-        {/* Clean Educational Credential (Borderless & Aesthetic) */}
+        {/* Scholar Location Badge */}
         <div className="mt-3.5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-surface/80 px-4 py-1.5 text-xs text-primary shadow-xs backdrop-blur-xs">
-          <MapPinIcon className="size-3.5 text-accent-strong" />
-          <span className="font-medium">{institutionName}</span>
-          <span className="text-muted/60">•</span>
-          <span className="text-muted">{townName}</span>
+          <MapPinIcon className="size-3.5 shrink-0 text-accent-strong" />
+          <span className="font-medium">{addressText}</span>
         </div>
 
         {/* Trust Badges - Clean Floating Row (Full Variant) */}

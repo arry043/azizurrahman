@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { BrandMark } from "@/components/layout/brand-mark";
-import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
 import { useTranslations } from "@/i18n/client";
@@ -143,17 +142,14 @@ export function MobileNavigation() {
               {/* Drawer Header */}
               <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-6">
                 <BrandMark inverse />
-                <div className="flex items-center gap-2">
-                  <LanguageSwitcher variant="header" />
-                  <button
-                    type="button"
-                    onClick={() => setIsOpen(false)}
-                    aria-label={t.navigation.closeMenu}
-                    className="flex size-10 cursor-pointer items-center justify-center rounded-md p-2 text-ivory/80 hover:bg-white/10 hover:text-white focus-visible:outline-3 focus-visible:outline-focus"
-                  >
-                    <CloseIcon className="size-6" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  aria-label={t.navigation.closeMenu}
+                  className="flex size-10 cursor-pointer items-center justify-center rounded-md p-2 text-ivory/80 hover:bg-white/10 hover:text-white focus-visible:outline-3 focus-visible:outline-focus"
+                >
+                  <CloseIcon className="size-6" />
+                </button>
               </div>
 
               {/* Navigation links */}

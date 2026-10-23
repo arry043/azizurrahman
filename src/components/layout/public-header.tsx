@@ -2,13 +2,10 @@ import { Suspense } from "react";
 
 import { BrandMark } from "@/components/layout/brand-mark";
 import { DesktopNavigation } from "@/components/layout/desktop-navigation";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
-import { LinkButton } from "@/components/ui/link-button";
-import { getServerTranslations } from "@/i18n/server";
 
 export async function PublicHeader() {
-  const { t } = await getServerTranslations();
-
   return (
     <header className="site-header sticky top-0 z-40 border-b border-accent/30 bg-surface-inverse/95 shadow-subtle backdrop-blur-md print:hidden">
       <div className="container-page flex min-h-16 items-center justify-between py-2.5 sm:min-h-20">
@@ -19,16 +16,9 @@ export async function PublicHeader() {
           <DesktopNavigation />
         </Suspense>
 
-        {/* Mobile controls */}
-        <div className="flex items-center gap-2.5 lg:hidden">
-          <LinkButton
-            href="/book"
-            variant="primary"
-            size="sm"
-            className="min-h-9 px-3 py-1.5 text-xs sm:text-sm"
-          >
-            {t.navigation.bookShort}
-          </LinkButton>
+        {/* Mobile controls: [اردو / EN] [☰] */}
+        <div className="flex items-center gap-2 sm:gap-2.5 lg:hidden">
+          <LanguageSwitcher variant="header" />
           <Suspense fallback={<div className="min-h-11 min-w-11" />}>
             <MobileNavigation />
           </Suspense>

@@ -2,11 +2,12 @@ import Link from "next/link";
 
 import { BrandMark } from "@/components/layout/brand-mark";
 import { CurrentYear } from "@/components/layout/current-year";
-import { MailIcon, MapPinIcon } from "@/components/ui/icons";
+import { MailIcon, MapPinIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { Ornament } from "@/components/ui/ornament";
 import { scholarProfile } from "@/config/scholar-profile";
 import { siteConfig } from "@/config/site";
 import { getServerTranslations } from "@/i18n/server";
+import { buildWhatsAppUrl } from "@/lib/contact/whatsapp";
 
 export async function PublicFooter() {
   const { t, locale } = await getServerTranslations();
@@ -26,6 +27,8 @@ export async function PublicFooter() {
     { label: t.navigation.contact, href: "/contact" },
     { label: t.navigation.lookup, href: "/appointments/lookup" },
   ];
+
+  const whatsappUrl = buildWhatsAppUrl(scholarProfile.contact.whatsapp.number, null, isUr);
 
   return (
     <footer className="site-footer border-t border-border bg-surface-muted text-foreground print:hidden">
@@ -55,6 +58,21 @@ export async function PublicFooter() {
                   <bdi>{scholarProfile.contact.email}</bdi>
                 </a>
               </div>
+              {whatsappUrl && (
+                <div className="flex items-center gap-2">
+                  <WhatsAppIcon className="size-4 shrink-0 text-emerald" />
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    dir="ltr"
+                    className="font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-focus"
+                    aria-label={isUr ? "واٹس ایپ پر رابطہ کریں" : "Contact on WhatsApp"}
+                  >
+                    <bdi>{scholarProfile.contact.whatsapp.number}</bdi>
+                  </a>
+                </div>
+              )}
             </div>
 
             <Ornament className="mt-4 justify-start" />

@@ -2,10 +2,12 @@
 
 import { ExternalLinkIcon, MailIcon, PhoneIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { LinkButton } from "@/components/ui/link-button";
-import { scholarProfile } from "@/config/scholar-profile";
 import { useTranslations } from "@/i18n/client";
+import { buildWhatsAppUrl } from "@/lib/contact/whatsapp";
 import { cn } from "@/lib/utils";
 import { normalizeEmail, normalizePhone } from "@/lib/validation/contact";
+
+export { buildWhatsAppUrl } from "@/lib/contact/whatsapp";
 
 export interface ContactActionsProps {
   whatsapp?: string | null;
@@ -15,27 +17,6 @@ export interface ContactActionsProps {
   showNote?: boolean;
   className?: string;
   variant?: "horizontal" | "vertical" | "grid";
-}
-
-/**
- * Constructs an RFC-compliant, URL-encoded WhatsApp direct conversation link.
- * Does not transmit any message automatically; the visitor retains full agency to review and send.
- */
-export function buildWhatsAppUrl(
-  phone: string,
-  template?: string | null,
-  isUr = false,
-): string | null {
-  const normalized = normalizePhone(phone);
-  if (!normalized) return null;
-
-  const digits = normalized.replace(/^\+/, "");
-  const defaultText = isUr
-    ? scholarProfile.contact.whatsapp.defaultMessageUr
-    : scholarProfile.contact.whatsapp.defaultMessageEn;
-  const text = encodeURIComponent(template?.trim() || defaultText);
-
-  return `https://wa.me/${digits}?text=${text}`;
 }
 
 export function ContactActions({
