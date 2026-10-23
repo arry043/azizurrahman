@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 
 import { ContactCTA } from "@/components/contact/contact-cta";
+import { HeroConsultationShowcase } from "@/components/home/hero-consultation-showcase";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageSection } from "@/components/layout/page-section";
 import { ScholarPortrait } from "@/components/scholar/scholar-portrait";
@@ -145,26 +145,9 @@ export default async function HomePage() {
               <p className="pt-2 text-xs text-ivory/60">{t.home.heroAdvanceNotice}</p>
             </div>
 
-            {/* Visual Emblem Column */}
+            {/* Visual Interactive Consultation Showcase Column */}
             <div className="flex justify-center lg:col-span-5 lg:justify-end">
-              <div className="relative flex items-center justify-center">
-                {/* Soft Ambient Radiance behind Emblem */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute size-56 rounded-full bg-accent/25 blur-3xl sm:size-72 lg:size-80"
-                />
-                <div className="relative size-56 overflow-hidden rounded-full border border-accent/40 bg-cream/15 p-2 shadow-raised backdrop-blur-xs sm:size-72 lg:size-88">
-                  <Image
-                    src={siteConfig.logo.src}
-                    alt={siteConfig.logo.alt}
-                    width={siteConfig.logo.width}
-                    height={siteConfig.logo.height}
-                    priority
-                    sizes="(min-width: 1024px) 22rem, (min-width: 640px) 18rem, 14rem"
-                    className="size-full rounded-full object-cover"
-                  />
-                </div>
-              </div>
+              <HeroConsultationShowcase services={featuredServices} />
             </div>
           </div>
         </PageContainer>

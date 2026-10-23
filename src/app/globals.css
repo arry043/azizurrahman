@@ -144,6 +144,83 @@
   margin-inline: auto;
 }
 
+/* Premium Hero Animations & Motion Utilities -------------------------------------------------- */
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes float-1 {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-2 {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(7px);
+  }
+}
+
+@keyframes float-3 {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.05);
+  }
+}
+
+@utility animate-spin-slow {
+  animation: spin 50s linear infinite;
+}
+
+@utility animate-spin-reverse-slow {
+  animation: spin-reverse 65s linear infinite;
+}
+
+@utility animate-float-1 {
+  animation: float-1 6s ease-in-out infinite;
+}
+
+@utility animate-float-2 {
+  animation: float-2 7s ease-in-out infinite;
+}
+
+@utility animate-float-3 {
+  animation: float-3 8s ease-in-out infinite;
+}
+
+@utility animate-pulse-soft {
+  animation: pulse-soft 5s ease-in-out infinite;
+}
+
 /* Base -------------------------------------------------------------------------------------- */
 
 @layer base {
@@ -217,6 +294,7 @@
     *,
     *::before,
     *::after {
+      animation: none !important;
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;

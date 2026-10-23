@@ -38,6 +38,7 @@ export interface ScholarProfile {
       pincode: string;
       full: string;
       compact: string;
+      compactUr?: string;
       mapsSearchUrl: string;
     };
     email: string;
@@ -48,6 +49,8 @@ export interface ScholarProfile {
       confirmationNote: string;
     };
     whatsapp: {
+      number: string;
+      bilingualMessage: string;
       defaultMessageEn: string;
       defaultMessageUr: string;
     };
@@ -103,7 +106,8 @@ export const scholarProfile: ScholarProfile = {
       country: "India",
       pincode: "276305",
       full: "Village Kharewan, Saraimeer, Azamgarh, Uttar Pradesh, India — 276305",
-      compact: "Village Kharewan, Saraimeer, Azamgarh, UP, India 276305",
+      compact: "Kharewan, Saraimeer, Azamgarh, UP, India, 276305",
+      compactUr: "کھریواں، سرائمیر، اعظم گڑھ، یوپی، انڈیا، 276305",
       mapsSearchUrl:
         "https://www.google.com/maps/search/?api=1&query=Village+Kharewan%2C+Saraimeer%2C+Azamgarh%2C+Uttar+Pradesh+276305+India",
     },
@@ -116,10 +120,13 @@ export const scholarProfile: ScholarProfile = {
         "Direct calling and WhatsApp links require explicit confirmation of international calling prefix (+91) before production activation.",
     },
     whatsapp: {
+      number: "+918423668492",
+      bilingualMessage:
+        "Assalamu Alaikum. I would like to inquire about spiritual guidance and consultation with Maulvi Azizurrahman. Please share the available services and appointment booking details. JazakAllah Khair.\n\nالسلام علیکم۔ میں مولوی عزیزالرحمان صاحب سے روحانی رہنمائی اور مشاورت کے بارے میں معلومات حاصل کرنا چاہتا/چاہتی ہوں۔ براہِ کرم دستیاب خدمات اور ملاقات کے وقت کی بکنگ کے بارے میں رہنمائی فرمائیں۔ جزاک اللہ خیر۔",
       defaultMessageEn:
-        "Assalamu Alaikum, I would like to enquire about an appointment with Maulvi Azizurrahman.",
+        "Assalamu Alaikum. I would like to inquire about spiritual guidance and consultation with Maulvi Azizurrahman. Please share the available services and appointment booking details. JazakAllah Khair.",
       defaultMessageUr:
-        "السلام علیکم، میں مولوی عزیز الرحمٰن صاحب سے ملاقات یا مشاورت کے سلسلے میں رابطہ کرنا چاہتا ہوں۔",
+        "السلام علیکم۔ میں مولوی عزیزالرحمان صاحب سے روحانی رہنمائی اور مشاورت کے بارے میں معلومات حاصل کرنا چاہتا/چاہتی ہوں۔ براہِ کرم دستیاب خدمات اور ملاقات کے وقت کی بکنگ کے بارے میں رہنمائی فرمائیں۔ جزاک اللہ خیر۔",
     },
   },
   content: {

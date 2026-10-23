@@ -8,7 +8,7 @@ import { PublicFooter } from "@/components/layout/public-footer";
 import { PublicHeader } from "@/components/layout/public-header";
 import * as lookupService from "@/lib/lookup/lookup-service";
 import * as publicServices from "@/lib/services/public-services";
-import type { PublicAppointmentReceipt, PublicService } from "@/types/domain";
+import type { PublicService } from "@/types/domain";
 import { read } from "../support/files";
 
 type ReceiptDetail = NonNullable<

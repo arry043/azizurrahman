@@ -1,6 +1,5 @@
 import { spawn } from "child_process";
 import fs from "fs";
-import http from "http";
 
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = 9222;
